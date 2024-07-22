@@ -39,7 +39,7 @@
 * Flask
 * SQLite
 
-## 프로젝트 구조
+## 프로젝트 구조 (임시)
 
 ```
 ddoobugi/
@@ -64,8 +64,19 @@ ddoobugi/
 ### Flask 가상환경 실행
 
 ```
+# macOS / Linux
 시작
 source venv/bin/activate
 종료
 deactive
+```
+
+### 패키지 설치 / 추가
+
+```
+# 패키지 설치 시
+pip install -r requirements.txt
+
+# 패키지 추가 시
+pip freeze > requirements.txt
 ```
