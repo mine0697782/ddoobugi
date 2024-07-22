@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chatbot with Map</title>
+    <style>
+        body {
+            display: flex;
+        }
+        #chat {
+            width: 40%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #ccc;
+            padding: 10px;
+        }
+        #map-container {
+            width: 60%;
+            height: 100vh;
+        }
+        #messages {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+        #input-container {
+            display: flex;
+        }
+        #input-container input {
+            flex: 1;
+            padding: 10px;
+        }
+        #input-container button {
+            padding: 10px;
+        }
+        #map {
+            width: 100%;
+            height: 50%;
+        }
+        #street-view {
+            width: 100%;
+            height: 50%;
+        }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap" async defer></script>
+    <script>
+        let map, streetView;
+        let markers = [];
+
+        function initMap() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+
+                    map = new google.maps.Map(document.getElementById('map'), {
+                        center: userLocation,
+                        zoom: 14
+                    });
+
+                    streetView = new google.maps.StreetViewPanorama(
+                        document.getElementById('street-view'), {
+                            position: userLocation,
+                            pov: {heading: 165, pitch: 0},
+                            zoom: 1
+                        });
+
+                    map.setStreetView(streetView);
+
+                    new google.maps.Marker({
+                        position: userLocation,
+                        map: map,
+                        title: 'Your location'
+                    });
+                }, function() {
+                    handleLocationError(true, map.getCenter());
+                });
+            } else {
+                handleLocationError(false, map.getCenter());
+            }
+        }
+
+        function handleLocationError(browserHasGeolocation, pos) {
+            var infoWindow = new google.maps.InfoWindow({
+                position: pos,
+                content: browserHasGeolocation ?
+                    'Error: The Geolocation service failed.' :
+                    'Error: Your browser doesn\'t support geolocation.'
+            });
+            infoWindow.open(map);
+        }
+
+        function placeMarkers(places) {
+            clearMarkers();
+            for (let place of places) {
+                let marker = new google.maps.Marker({
+                    position: place.geometry.location,
+                    map: map,
+                    title: place.name
+                });
+                markers.push(marker);
+
+                new google.maps.Marker({
+                    position: place.geometry.location,
+                    map: streetView,
+                    title: place.name
+                });
+
+                displayMessage('Bot', `Place: ${place.name}, Address: ${place.formatted_address}, Rating: ${place.rating}`);
+            }
+        }
+
+        function clearMarkers() {
+            for (let marker of markers) {
+                marker.setMap(null);
+            }
+            markers = [];
+        }
+
+        async function sendMessage() {
+            const userInput = document.getElementById('inputText').value;
+            displayMessage('User', userInput);
+            const response = await fetch('/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ input_text: userInput })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                displayMessage('Bot', data.answer);
+                placeMarkers(data.places);
+            } else {
+                alert(data.error);
+            }
+        }
+
+        function displayMessage(sender, message) {
+            const messageContainer = document.createElement('div');
+            messageContainer.textContent = `${sender}: ${message}`;
+            document.getElementById('messages').appendChild(messageContainer);
+        }
+    </script>
+</head>
+<body>
+    <div id="chat">
+        <div id="messages"></div>
+        <div id="input-container">
+            <input type="text" id="inputText" placeholder="Enter your question">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+    <div id="map-container">
+        <div id="map"></div>
+        <div id="street-view"></div>
+    </div>
+</body>
+</html>
