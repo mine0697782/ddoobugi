@@ -36,22 +36,19 @@
         }
         #map {
             width: 100%;
-            height: 50%;
-        }
-        #street-view {
-            width: 100%;
-            height: 50%;
+            height: 100%;
         }
     </style>
     <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap" async defer></script>
     <script>
-        let map, streetView;
+        let map;
         let markers = [];
+        let userLocation = {};
 
         function initMap() {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(position) {
-                    var userLocation = {
+                navigator.geolocation.getCurrentPosition(async function(position) {
+                    userLocation = {
                         lat: position.coords.latitude,
                         lng: position.coords.longitude
                     };
@@ -61,20 +58,14 @@
                         zoom: 14
                     });
 
-                    streetView = new google.maps.StreetViewPanorama(
-                        document.getElementById('street-view'), {
-                            position: userLocation,
-                            pov: {heading: 165, pitch: 0},
-                            zoom: 1
-                        });
-
-                    map.setStreetView(streetView);
-
                     new google.maps.Marker({
                         position: userLocation,
                         map: map,
                         title: 'Your location'
                     });
+
+                    // Initial search for nearby places
+                    await fetchNearbyPlaces();
                 }, function() {
                     handleLocationError(true, map.getCenter());
                 });
@@ -97,19 +88,12 @@
             clearMarkers();
             for (let place of places) {
                 let marker = new google.maps.Marker({
-                    position: place.geometry.location,
+                    position: {lat: place.geometry.location.lat, lng: place.geometry.location.lng},
                     map: map,
-                    title: place.name
+                    title: place.name,
+                    icon: 'http://maps.google.com/mapfiles/ms/icons/heart.png'
                 });
                 markers.push(marker);
-
-                new google.maps.Marker({
-                    position: place.geometry.location,
-                    map: streetView,
-                    title: place.name
-                });
-
-                displayMessage('Bot', `Place: ${place.name}, Address: ${place.formatted_address}, Rating: ${place.rating}`);
             }
         }
 
@@ -120,22 +104,54 @@
             markers = [];
         }
 
-        async function sendMessage() {
-            const userInput = document.getElementById('inputText').value;
-            displayMessage('User', userInput);
+        async function fetchNearbyPlaces() {
             const response = await fetch('/search', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ input_text: userInput })
+                body: JSON.stringify({ lat: userLocation.lat, lng: userLocation.lng })
             });
             const data = await response.json();
             if (response.ok) {
-                displayMessage('Bot', data.answer);
+                displayMessage('Bot', "Fetched Nearby Places:");
+                data.places.forEach(place => {
+                    displayMessage('Bot', `Name: ${place.name}, Rating: ${place.rating}, Address: ${place.formatted_address}, Reviews: ${place.reviews.map(review => review.text).join(', ')}`);
+                });
                 placeMarkers(data.places);
             } else {
                 alert(data.error);
+            }
+        }
+
+        async function sendMessage() {
+            const userInput = document.getElementById('inputText').value;
+            displayMessage('User', userInput);
+            await fetchNearbyPlaces();
+        }
+
+        async function updateLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async function(position) {
+                    userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+
+                    map.setCenter(userLocation);
+
+                    new google.maps.Marker({
+                        position: userLocation,
+                        map: map,
+                        title: 'Your location'
+                    });
+
+                    await fetchNearbyPlaces();
+                }, function() {
+                    handleLocationError(true, map.getCenter());
+                });
+            } else {
+                handleLocationError(false, map.getCenter());
             }
         }
 
@@ -152,11 +168,11 @@
         <div id="input-container">
             <input type="text" id="inputText" placeholder="Enter your question">
             <button onclick="sendMessage()">Send</button>
+            <button onclick="updateLocation()">Update Location</button>
         </div>
     </div>
     <div id="map-container">
         <div id="map"></div>
-        <div id="street-view"></div>
     </div>
 </body>
 </html>
