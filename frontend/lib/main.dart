@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'login.dart';
+
 void main() {
   runApp(const Main());
 }
@@ -9,15 +11,8 @@ class Main extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-          title: const Text(
-        "뚜버기",
-        style: TextStyle(
-          fontFamily: 'Hanbit',
-        ),
-      )),
-      body: Container(),
+    return const MaterialApp(
+      home: Login(),
     );
   }
 }
