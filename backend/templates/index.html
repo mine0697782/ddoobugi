@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Place Search</title>
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+    </style>
+    <script>
+        let map;
+
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: {lat: 37.5665, lng: 126.9780},
+                zoom: 13
+            });
+        }
+
+        function extractKeywords() {
+            const userInput = document.getElementById('input_text').value;
+            fetch('/extract_keywords', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ input_text: userInput })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const keywords = data.keywords.join(' ');
+                document.getElementById('keywords').innerText = `Extracted Keywords: ${keywords}`;
+                searchPlaces(keywords);
+            });
+        }
+
+        function searchPlaces(keywords) {
+            fetch('/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ query: keywords })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const results = data.results;
+                const resultDiv = document.getElementById('results');
+                resultDiv.innerHTML = '';
+
+                results.forEach(place => {
+                    const name = place.name;
+                    const address = place.formatted_address;
+                    const lat = place.geometry.location.lat;
+                    const lng = place.geometry.location.lng;
+                    
+                    resultDiv.innerHTML += `<p>Name: ${name}, Address: ${address}</p>`;
+                    
+                    const marker = new google.maps.Marker({
+                        position: {lat: lat, lng: lng},
+                        map: map,
+                        title: name
+                    });
+
+                    map.setCenter({lat: lat, lng: lng});
+                });
+            });
+        }
+    </script>
+</head>
+<body onload="initMap()">
+    <h1>Place Search</h1>
+    <input type="text" id="input_text" placeholder="Enter a sentence to extract keywords">
+    <button onclick="extractKeywords()">Extract Keywords and Search</button>
+    <div id="keywords"></div>
+    <div id="results"></div>
+    <div id="map"></div>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB4dDi7gUQAE2x5DlfzOruagcm88HRfxBs&callback=initMap" async defer></script>
+</body>
+</html>
