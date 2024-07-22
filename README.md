@@ -23,6 +23,8 @@ ddoobugi/
 ```
 
 ### Flask 가상환경 실행
+```
 시작 : source myprojectenv/bin/activate
 종료 : deactive
+```
 
