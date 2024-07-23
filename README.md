@@ -80,3 +80,9 @@ pip install -r requirements.txt
 # 패키지 추가 시
 pip freeze > requirements.txt
 ```
+
+### 서버 실행
+
+```
+python main.py
+```
