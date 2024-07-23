@@ -236,6 +236,11 @@
             });
         }
 
+        function clearMarkers() {
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
+        }
+
         function showStreetView(lat, lng) {
             panorama.setPosition({lat: lat, lng: lng});
             panorama.setVisible(true);
