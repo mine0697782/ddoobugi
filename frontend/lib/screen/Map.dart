@@ -28,6 +28,7 @@ class _mapScreenState extends State<mapScreen> {
           ),
           backgroundColor: Colors.white,
         ),
+        backgroundColor: Colors.white,
         body: GoogleMap(
           onMapCreated: _onMapCreated,
           initialCameraPosition: CameraPosition(
