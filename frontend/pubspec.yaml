@@ -79,7 +79,7 @@ flutter:
   # list giving the asset and other descrisptors for the font. For
   # example:
   assets:
-    - assets/images
+    - assets/
   fonts:
     - family: 'Hanbit'
       fonts:
