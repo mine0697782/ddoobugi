@@ -135,7 +135,7 @@ def extract_keywords_route():
 
 
 def generate_recommendation_comment(chat, recommended_places):
-    # 장소들에 대한 정보를 문자열로 변환
+    # 장소들에 대한 정보를 문자열로 변환.
     places_str = "\n".join([
         f"{i+1}. Name: {place['name']}, Address: {place['address']}, Rating: {place['rating']}, "
         f"User Ratings: {place['user_ratings_total']}, Open Now: {place['open_now']}, Distance: {place['distance']} meters"
@@ -154,7 +154,7 @@ def generate_recommendation_comment(chat, recommended_places):
     # 종합 코멘트 생성
     response = chain.invoke({"places": places_str})
 
-    # 응답이 딕셔너리 형식으로 반환될 경우 직접 필요한 정보를 추출
+    # 응답이 딕셔너리 형식으로 반환될 경우 직접 필요한 정보를 추출.
     if isinstance(response, dict):
         overall_comment = response.get("text", "")
     else:
