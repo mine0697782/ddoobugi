@@ -21,13 +21,14 @@ class _mapScreenState extends State<mapScreen> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: Image.asset(
-            '../assets/images/logo.png',
-            scale: 6,
-          ),
-          backgroundColor: Colors.white,
-        ),
+        // appBar: AppBar(
+        //   title: Image.asset(
+        //     'assets/images/logo.png',
+        //     scale: 6,
+        //   ),
+        //   backgroundColor: Colors.white,
+        // ),
+        backgroundColor: Colors.white,
         body: GoogleMap(
           onMapCreated: _onMapCreated,
           initialCameraPosition: CameraPosition(

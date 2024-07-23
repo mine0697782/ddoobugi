@@ -38,6 +38,7 @@ dependencies:
   google_maps_flutter: ^2.7.0
   google_maps_flutter_web: ^0.5.8
   webview_flutter: 3.0.4
+  permission_handler: ^10.0.0
 
 dev_dependencies:
   flutter_test:
@@ -78,7 +79,7 @@ flutter:
   # list giving the asset and other descrisptors for the font. For
   # example:
   assets:
-    - assets/
+    - assets/images
   fonts:
     - family: 'Hanbit'
       fonts:
