@@ -5,6 +5,7 @@ import requests
 from dotenv import load_dotenv
 from langchain_openai import AzureChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
+from geopy.distance import geodesic
 
 # 환경 변수 로드
 load_dotenv()
@@ -51,6 +52,25 @@ def search_place(query):
     else:
         return None
 
+def recommend_places(chat, places_info, user_location):
+    # Calculate the distance of each place from the user's location
+    for place in places_info:
+        place_location = (place['lat'], place['lng'])
+        place['distance'] = geodesic(user_location, place_location).meters
+
+    # Sort places by distance and rating
+    sorted_places = sorted(places_info, key=lambda x: (x['distance'], -x['rating']))
+
+    # Prepare the top 3 recommended places
+    top_places = sorted_places[:3]
+    places_str = "\n".join([f"{i+1}. Name: {place['name']}, Address: {place['address']}, Rating: {place['rating']}, Distance: {place['distance']} meters, Open Now: {place['open_now']}" for i, place in enumerate(top_places)])
+    prompt = f"Here are some places:\n{places_str}\n\nRecommend the top 3 places based on closest distance and highest rating."
+    resp = chat.invoke([
+        SystemMessage(content=prompt),
+        HumanMessage(content="")
+    ])
+    return resp.content
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -70,10 +90,34 @@ def extract_keywords_route():
 
 @app.route('/search', methods=['POST'])
 def search():
-    query = request.json.get("query")
+    data = request.json
+    query = data.get("query")
+    user_lat = data.get("latitude")
+    user_lng = data.get("longitude")
+    user_location = (user_lat, user_lng)
+
     result = search_place(query)
     if result and "results" in result:
-        return jsonify(results=result["results"])
+        places_info = []
+        for place in result["results"]:
+            places_info.append({
+                "name": place["name"],
+                "address": place.get("formatted_address", "N/A"),
+                "rating": place.get("rating", "N/A"),
+                "open_now": place.get("opening_hours", {}).get("open_now", "N/A"),
+                "lat": place["geometry"]["location"]["lat"],
+                "lng": place["geometry"]["location"]["lng"]
+            })
+        
+        chat = AzureChatOpenAI(
+            azure_deployment=model_name,
+            openai_api_key=api_key,
+            api_version=api_version,
+            temperature=0
+        )
+        
+        recommended_places = recommend_places(chat, places_info, user_location)
+        return jsonify(recommendations=recommended_places, results=result["results"])
     else:
         return jsonify(results=[])
 
