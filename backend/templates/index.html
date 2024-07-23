@@ -235,6 +235,12 @@
                 }
             });
         }
+
+        function showStreetView(lat, lng) {
+            panorama.setPosition({lat: lat, lng: lng});
+            panorama.setVisible(true);
+            map.setStreetView(panorama);
+        }
     </script>
 </head>
 <body onload="initMap()">
