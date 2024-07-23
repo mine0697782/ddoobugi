@@ -23,7 +23,6 @@ def show(page):
         if not os.path.isfile(full_template_path):
             # print(f"Template not found: {full_template_path}")
             abort(404)
-        
         # print('return')
         return render_template(template_path)
     except TemplateNotFound:
