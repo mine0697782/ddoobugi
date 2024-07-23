@@ -1,8 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/screen/Map.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class StartSreen extends StatelessWidget {
   const StartSreen({super.key});
+
+  Future<void> requestLocationPermission(BuildContext context) async {
+    var status = await Permission.location.request();
+    if (status.isGranted) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => mapScreen()),
+      );
+    } else {
+      // 권한이 거부되었을 때의 처리
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('위치 권한이 필요합니다.'),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +32,7 @@ class StartSreen extends StatelessWidget {
         ),
         backgroundColor: Colors.white,
       ),
-      backgroundColor: const Color(0xffffff),
+      backgroundColor: Colors.white,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -39,13 +57,14 @@ class StartSreen extends StatelessWidget {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFADEEFF),
-                  fixedSize: const Size(250, 80),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8))),
+                backgroundColor: const Color(0xFFADEEFF),
+                fixedSize: const Size(250, 80),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
               onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => mapScreen()));
+                requestLocationPermission(context);
               },
               child: const Text(
                 "지금 위치에서 출발하기",
@@ -61,11 +80,13 @@ class StartSreen extends StatelessWidget {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFBFFFC6),
-                  fixedSize: const Size(250, 80),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)),
-                  shadowColor: Colors.grey),
+                backgroundColor: const Color(0xFFBFFFC6),
+                fixedSize: const Size(250, 80),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                shadowColor: Colors.grey,
+              ),
               onPressed: () {},
               child: const Text(
                 "이전 기록따라 움직이기",
