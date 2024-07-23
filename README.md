@@ -37,7 +37,7 @@
 * Langchain
 * Flutter
 * Flask
-* SQLite
+* MongoDB
 
 ## 프로젝트 구조 (임시)
 
@@ -47,8 +47,10 @@ ddoobugi/
 │   ├── app/
 │   │   ├── __init__.py
 │   │   └── routes.py
+│   ├── templates/
+│   │   ├── ~~.html
 │   ├── venv/
-│   ├── run.py
+│   ├── main.py
 │   └── requirements.txt
 ├── frontend/ (임시)
 │   ├── android/
