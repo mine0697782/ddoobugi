@@ -63,13 +63,14 @@ def recommend_places(chat, places_info, user_location):
 
     # Prepare the top 3 recommended places
     top_places = sorted_places[:3]
-    places_str = "\n".join([f"{i+1}. Name: {place['name']}, Address: {place['address']}, Rating: {place['rating']}, Distance: {place['distance']} meters, Open Now: {place['open_now']}" for i, place in enumerate(top_places)])
+    places_str = "\n".join([f"{i+1}. Name: {place['name']}, Address: {place['address']}, Rating: {place['rating']}, User Ratings: {place['user_ratings_total']}, Open Now: {place['open_now']}, Distance: {place['distance']} meters" for i, place in enumerate(top_places)])
     prompt = f"Here are some places:\n{places_str}\n\nRecommend the top 3 places based on closest distance and highest rating."
     resp = chat.invoke([
         SystemMessage(content=prompt),
         HumanMessage(content="")
     ])
-    return resp.content
+    recommended_places = [place for place in top_places]  # 추천된 장소 목록 반환
+    return recommended_places
 
 @app.route('/')
 def index():
@@ -104,6 +105,7 @@ def search():
                 "name": place["name"],
                 "address": place.get("formatted_address", "N/A"),
                 "rating": place.get("rating", "N/A"),
+                "user_ratings_total": place.get("user_ratings_total", "N/A"),
                 "open_now": place.get("opening_hours", {}).get("open_now", "N/A"),
                 "lat": place["geometry"]["location"]["lat"],
                 "lng": place["geometry"]["location"]["lng"]
