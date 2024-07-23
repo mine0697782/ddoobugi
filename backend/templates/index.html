@@ -24,7 +24,7 @@
             padding: 10px 20px;
             font-size: 1.2em;
         }
-        #keywords, #results, #recommendations, #error-message {
+        #keywords, #results, #recommendations, #overall-comment, #error-message {
             width: 80%;
             margin: 20px 0;
         }
@@ -47,7 +47,7 @@
 
         function initMap() {
             map = new google.maps.Map(document.getElementById('map'), {
-                center: {lat: 37.5665, lng: 126.9780}, // Initial position (Seoul City Hall)
+                center: {lat: 37.5665, lng: 126.9780},
                 zoom: 13
             });
 
@@ -131,10 +131,13 @@
                 clearMarkers();
                 const results = data.results;
                 const recommendations = data.recommendations;
+                const overallComment = data.comment;
                 const resultDiv = document.getElementById('results');
                 const recommendationsDiv = document.getElementById('recommendations');
+                const commentDiv = document.getElementById('overall-comment');
                 resultDiv.innerHTML = '';
                 recommendationsDiv.innerHTML = '';
+                commentDiv.innerHTML = '';
 
                 results.forEach((place) => {
                     const name = place.name;
@@ -161,7 +164,7 @@
                     resultDiv.appendChild(placeElement);
 
                     // 마커 색상 결정
-                    const markerIcon = recommendations.some(recommendation => recommendation.name === name) ? 
+                    const markerIcon = recommendations.some(recommendation => recommendation.name === name && place.open_now) ? 
                         "http://maps.google.com/mapfiles/ms/icons/purple-dot.png" : 
                         "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
 
@@ -188,10 +191,13 @@
                             <strong>Address:</strong> ${place.address}<br>
                             <strong>Rating:</strong> ${place.rating}<br>
                             <strong>User Ratings:</strong> ${place.user_ratings_total}<br>
-                            <strong>Open Now:</strong> ${place.open_now}
+                            <strong>Open Now:</strong> ${place.open_now ? "Yes" : "No"}<br>
+                            <strong>Distance:</strong> ${place.distance.toFixed(2)} meters
                         </p>`;
                     recommendationsDiv.appendChild(placeElement);
                 });
+
+                commentDiv.innerHTML = `<h2>Overall Comment</h2><p>${overallComment}</p>`;
             });
         }
 
@@ -214,6 +220,7 @@
     </div>
     <div id="keywords"></div>
     <div id="recommendations"></div>
+    <div id="overall-comment"></div>
     <div id="map"></div>
     <div id="street-view"></div>
     <div id="results"></div>
