@@ -86,7 +86,9 @@ def recommend_places(chat, places_info, user_location):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', google_maps_api_key=google_maps_api_key)
+
+
 
 @app.route('/extract_keywords', methods=['POST'])
 def extract_keywords_route():
