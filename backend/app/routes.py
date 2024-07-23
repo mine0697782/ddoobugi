@@ -17,15 +17,15 @@ def show(page):
         # print(template_path)
 
         full_template_path = os.path.join(current_app.root_path, 'templates', template_path)
-        print(f"Looking for template at: {full_template_path}")
+        # print(f"Looking for template at: {full_template_path}")
 
         # 템플릿 경로가 존재하는지 확인
         if not os.path.isfile(full_template_path):
-            print(f"Template not found: {full_template_path}")
+            # print(f"Template not found: {full_template_path}")
             abort(404)
         
-        print('return')
+        # print('return')
         return render_template(template_path)
     except TemplateNotFound:
-        print('not found')
+        # print('not found')
         abort(404)
