@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/screen/Map.dart';
+import 'package:frontend/screen/Map.dart'; // 올바른 경로인지 확인하세요.
 import 'package:permission_handler/permission_handler.dart';
 
-class StartSreen extends StatelessWidget {
-  const StartSreen({super.key});
+class StartScreen extends StatelessWidget {
+  const StartScreen({Key? key}) : super(key: key);
 
   Future<void> requestLocationPermission(BuildContext context) async {
     var status = await Permission.location.request();
     if (status.isGranted) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => mapScreen()),
+        MaterialPageRoute(
+            builder: (context) => const MapScreen()), // const 키워드 사용
       );
     } else {
-      // 권한이 거부되었을 때의 처리
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('위치 권한이 필요합니다.'),
+          content: const Text('위치 권한이 필요합니다.'),
         ),
       );
     }
@@ -27,7 +27,7 @@ class StartSreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Image.asset(
-          '../assets/images/logo.png',
+          'assets/images/logo.png',
           scale: 6,
         ),
         backgroundColor: Colors.white,
@@ -41,9 +41,7 @@ class StartSreen extends StatelessWidget {
               "뚜벅이",
               style: TextStyle(fontFamily: "Hanbit", fontSize: 40),
             ),
-            const SizedBox(
-              height: 30,
-            ),
+            const SizedBox(height: 30),
             const Text(
               "당신의 즉흥을 따라가볼게요",
               style: TextStyle(fontFamily: "Hanbit", fontSize: 20),
@@ -52,9 +50,7 @@ class StartSreen extends StatelessWidget {
               "가고 싶은 길이 있나요?",
               style: TextStyle(fontFamily: "Hanbit", fontSize: 20),
             ),
-            const SizedBox(
-              height: 30,
-            ),
+            const SizedBox(height: 30),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFADEEFF),
@@ -75,9 +71,7 @@ class StartSreen extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(
-              height: 15,
-            ),
+            const SizedBox(height: 15),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFBFFFC6),
