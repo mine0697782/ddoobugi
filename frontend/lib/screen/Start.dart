@@ -10,12 +10,12 @@ class StartSreen extends StatelessWidget {
     if (status.isGranted) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => mapScreen()),
+        MaterialPageRoute(builder: (context) => const mapScreen()),
       );
     } else {
       // 권한이 거부되었을 때의 처리
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('위치 권한이 필요합니다.'),
         ),
       );
@@ -25,13 +25,13 @@ class StartSreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Image.asset(
-          '../assets/images/logo.png',
-          scale: 6,
-        ),
-        backgroundColor: Colors.white,
-      ),
+      // appBar: AppBar(
+      //   title: Image.asset(
+      //     'assets/images/logo.png',
+      //     scale: 6,
+      //   ),
+      //   backgroundColor: Colors.white,
+      // ),
       backgroundColor: Colors.white,
       body: Center(
         child: Column(
