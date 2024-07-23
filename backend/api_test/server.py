@@ -65,7 +65,7 @@ def get_place_details(place_id):
     return {}
 
 def summarize_places_with_gpt(place_info):
-    prompt = f"다음 장소에 대한 정보를 간결하고 깔끔하게 한국어로 요약해주세요:\n{place_info}"
+    prompt = f"다음 장소에 대한 정보를 간결하고 깔끔하게 한국어로 요약해주세요 선정이유도 포함하되, place_id는 빼주세요.:\n{place_info}"
     model = AzureChatOpenAI(
     azure_deployment=model_name,
     openai_api_key=api_key,
@@ -104,7 +104,7 @@ def search():
         nearby_places = [place for place in nearby_places if place['place_id'] not in exclude_place_ids]
         
         # GPT에게 제공할 프롬프트 작성
-        prompt = f"사용자의 입력: {user_input}\n\n사용자의 좌표는 ({lat}, {lng})입니다. 주어진 장소 정보는 {nearby_places}입니다. 주어진 장소 정보들 중에서 리뷰와 평점, 거리 등에 따라 그리고 사용자의 입력에 따른 3개의 장소를 추천해줘, 그리고 다음과 같은 정보를 나열해줘 - 이름, 평점, 리뷰요약, 거리, 이유, 주소, place_id\n"
+        prompt = f"사용자의 입력: {user_input}\n\n사용자의 좌표는 ({lat}, {lng})입니다. 주어진 장소 정보는 {nearby_places}입니다. 주어진 장소 정보들 중에서 리뷰와 평점, 거리 등에 따라 그리고 사용자의 입력에 따른 3개의 장소를 추천해줘, 그리고 다음과 같은 정보를 간결하고 보기좋게 나열해줘 각각 항목 이후에 줄바꿈도 해줘 - 이름, 평점, 리뷰요약, 거리, 이유, 주소, place_id\n"
         model = AzureChatOpenAI(
             azure_deployment=model_name,
             openai_api_key=api_key,
@@ -133,7 +133,9 @@ def search():
         ]
         place_info = "\n".join(place_info_list)
 
-        summarized_info = summarize_places_with_gpt(place_info)
+        #summarized_info = summarize_places_with_gpt(place_info)
+        summarized_info = summarize_places_with_gpt(model_output)
+
 
         return jsonify({"places": detailed_places, "place_info": summarized_info, "model_output": model_output, "place_ids": place_ids})
     except Exception as e:
