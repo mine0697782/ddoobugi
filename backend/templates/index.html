@@ -34,7 +34,7 @@
             width: 80%;
             margin: 20px 0;
         }
-        #keywords, #results {
+        #keywords, #results, #recommendations {
             width: 80%;
             margin: 20px 0;
         }
@@ -43,6 +43,8 @@
         let map;
         let panorama;
         let userMarker;
+        let markers = [];
+        let userLocation;
 
         function initMap() {
             map = new google.maps.Map(document.getElementById('map'), {
@@ -60,13 +62,13 @@
 
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition((position) => {
-                    const pos = {
+                    userLocation = {
                         lat: position.coords.latitude,
                         lng: position.coords.longitude
                     };
 
                     userMarker = new google.maps.Marker({
-                        position: pos,
+                        position: userLocation,
                         map: map,
                         title: "Your location",
                         icon: {
@@ -74,7 +76,7 @@
                         }
                     });
 
-                    map.setCenter(pos);
+                    map.setCenter(userLocation);
                 }, () => {
                     handleLocationError(true, map.getCenter());
                 });
@@ -112,18 +114,27 @@
         }
 
         function searchPlaces(keywords) {
+            if (!userLocation) {
+                alert("Could not determine your location. Please enable location services and try again.");
+                return;
+            }
+
             fetch('/search', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ query: keywords })
+                body: JSON.stringify({ query: keywords, latitude: userLocation.lat, longitude: userLocation.lng })
             })
             .then(response => response.json())
             .then(data => {
+                clearMarkers();
                 const results = data.results;
+                const recommendations = data.recommendations;
                 const resultDiv = document.getElementById('results');
+                const recommendationsDiv = document.getElementById('recommendations');
                 resultDiv.innerHTML = '';
+                recommendationsDiv.innerHTML = '';
 
                 results.forEach(place => {
                     const name = place.name;
@@ -145,11 +156,20 @@
                         title: name
                     });
 
+                    markers.push(marker);
+
                     marker.addListener('click', () => {
                         showStreetView(lat, lng);
                     });
                 });
+
+                recommendationsDiv.innerHTML = `<h2>Recommended Places</h2><p>${recommendations}</p>`;
             });
+        }
+
+        function clearMarkers() {
+            markers.forEach(marker => marker.setMap(null));
+            markers = [];
         }
 
         function showStreetView(lat, lng) {
@@ -168,6 +188,7 @@
     <div id="street-view"></div>
     <div id="keywords"></div>
     <div id="results"></div>
+    <div id="recommendations"></div>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB4dDi7gUQAE2x5DlfzOruagcm88HRfxBs&callback=initMap" async defer></script>
 </body>
 </html>
