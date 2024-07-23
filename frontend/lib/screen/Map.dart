@@ -28,6 +28,7 @@ class _MapScreenState extends State<MapScreen> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
+<<<<<<< HEAD
         appBar: AppBar(
           title: Image.asset(
             'assets/images/logo.png',
@@ -35,6 +36,15 @@ class _MapScreenState extends State<MapScreen> {
           ),
           backgroundColor: Colors.white,
         ),
+=======
+        // appBar: AppBar(
+        //   title: Image.asset(
+        //     'assets/images/logo.png',
+        //     scale: 6,
+        //   ),
+        //   backgroundColor: Colors.white,
+        // ),
+>>>>>>> 54546f2efb9ceb759777b8a47375568ffc3002e8
         backgroundColor: Colors.white,
         body: Stack(
           children: [

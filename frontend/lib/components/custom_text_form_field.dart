@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'size.dart';
 
-//import 'package:frontend/screen/';
 class CustomTextFormField extends StatelessWidget {
   final Size size;
   final TextEditingController ID;
