@@ -6,11 +6,11 @@
 
 ## 팀소개
 
-* [정민재 (mine0697782)](https://github.com/mine0697782)
-* [송문선 (mmoossun)](https://github.com/mmoossun)
-* [박규민 (gyumin4726)](https://github.com/gyumin4726)
-* [김규리 (gyur2)](https://github.com/gyur2)
-* [서다솜 (dasom040819)](https://github.com/dasom040819)
+* [정민재 (mine0697782)](https://github.com/mine0697782) : Backend (Server) / Leader
+* [송문선 (mmoossun)](https://github.com/mmoossun) : Backend (LLM)
+* [박규민 (gyumin4726)](https://github.com/gyumin4726) : Backend (LLM)
+* [김규리 (gyur2)](https://github.com/gyur2) : Frontend (Flutter App)
+* [서다솜 (dasom040819)](https://github.com/dasom040819) : Frontend (Flutter App)
 
 ## 뷰 스택
 
@@ -39,7 +39,7 @@
 * Flask
 * SQLite
 
-## 프로젝트 구조
+## 프로젝트 구조 (임시)
 
 ```
 ddoobugi/
@@ -64,8 +64,25 @@ ddoobugi/
 ### Flask 가상환경 실행
 
 ```
+# macOS / Linux
 시작
 source venv/bin/activate
 종료
 deactive
+```
+
+### 패키지 설치 / 추가
+
+```
+# 패키지 설치 시
+pip install -r requirements.txt
+
+# 패키지 추가 시
+pip freeze > requirements.txt
+```
+
+### 서버 실행
+
+```
+python main.py
 ```
