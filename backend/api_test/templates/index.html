@@ -17,6 +17,7 @@
         #map-container {
             width: 60%;
             height: 100vh;
+            position: relative;
         }
         #messages {
             flex: 1;
@@ -38,12 +39,32 @@
             width: 100%;
             height: 100%;
         }
+        #pano {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: none;
+        }
+        #close-pano {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1;
+            background: white;
+            padding: 5px;
+            cursor: pointer;
+            display: none;
+        }
     </style>
     <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap" async defer></script>
     <script>
         let map;
         let markers = [];
         let userLocation = {};
+        let recommendedPlaceIds = [];
+        let panorama;
 
         function initMap() {
             if (navigator.geolocation) {
@@ -57,6 +78,16 @@
                         center: userLocation,
                         zoom: 14
                     });
+
+                    panorama = new google.maps.StreetViewPanorama(
+                        document.getElementById('pano'), {
+                            position: userLocation,
+                            pov: { heading: 165, pitch: 0 },
+                            zoom: 1
+                        }
+                    );
+
+                    map.setStreetView(panorama);
 
                     new google.maps.Marker({
                         position: userLocation,
@@ -86,14 +117,26 @@
 
         function placeMarkers(places) {
             clearMarkers();
+            console.log("Placing markers for the following places:", places); // 디버그 로그 추가
             for (let place of places) {
-                let marker = new google.maps.Marker({
-                    position: {lat: place.geometry.location.lat, lng: place.geometry.location.lng},
-                    map: map,
-                    title: place.name,
-                    icon: 'http://maps.google.com/mapfiles/ms/icons/heart.png'
-                });
-                markers.push(marker);
+                if (place.geometry && place.geometry.location) {
+                    let marker = new google.maps.Marker({
+                        position: { lat: place.geometry.location.lat, lng: place.geometry.location.lng },
+                        map: map,
+                        title: place.name,
+                    });
+
+                    marker.addListener('click', function() {
+                        document.getElementById('pano').style.display = 'block';
+                        document.getElementById('close-pano').style.display = 'block';
+                        panorama.setPosition(marker.getPosition());
+                        panorama.setVisible(true);
+                    });
+
+                    markers.push(marker);
+                } else {
+                    console.log("Place is missing geometry or location data:", place); // 디버그 로그 추가
+                }
             }
         }
 
@@ -104,21 +147,38 @@
             markers = [];
         }
 
+        function closeStreetView() {
+            panorama.setVisible(false);
+            document.getElementById('pano').style.display = 'none';
+            document.getElementById('close-pano').style.display = 'none';
+        }
+
         async function fetchNearbyPlaces() {
+            const requestData = { 
+                lat: userLocation.lat, 
+                lng: userLocation.lng, 
+                exclude_place_ids: recommendedPlaceIds 
+            };
+            console.log("Sending request data:", requestData); // 디버그 로그 추가
+
             const response = await fetch('/search', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ lat: userLocation.lat, lng: userLocation.lng })
+                body: JSON.stringify(requestData)
             });
             const data = await response.json();
             if (response.ok) {
                 displayMessage('Bot', "Fetched Nearby Places:");
-                data.places.forEach(place => {
-                    displayMessage('Bot', `Name: ${place.name}, Rating: ${place.rating}, Address: ${place.formatted_address}, Reviews: ${place.reviews.map(review => review.text).join(', ')}`);
-                });
+                displayMessage('Bot', data.model_output);  // 모델의 출력 메시지를 채팅 인터페이스에 표시
+                displayMessage('Bot', data.place_info);    // 장소 정보 요약을 채팅 인터페이스에 표시
                 placeMarkers(data.places);
+
+                // 추천된 장소 ID를 추적 목록에 추가
+                console.log("Received place IDs:", data.place_ids); // 디버그 로그 추가
+                recommendedPlaceIds = recommendedPlaceIds.concat(data.place_ids);
+                console.log("Updated recommendedPlaceIds:", recommendedPlaceIds); // 디버그 로그 추가
             } else {
                 alert(data.error);
             }
@@ -173,6 +233,8 @@
     </div>
     <div id="map-container">
         <div id="map"></div>
+        <div id="pano"></div>
+        <div id="close-pano" onclick="closeStreetView()">Close Street View</div>
     </div>
 </body>
 </html>
