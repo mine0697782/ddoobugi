@@ -246,6 +246,23 @@
             panorama.setVisible(true);
             map.setStreetView(panorama);
         }
+
+        function showRoute(destinationLat, destinationLng) {
+            const request = {
+                origin: userLocation,
+                destination: {lat: destinationLat, lng: destinationLng},
+                travelMode: 'DRIVING'
+            };
+            directionsService.route(request, (result, status) => {
+                if (status === 'OK') {
+                    directionsRenderer.setDirections(result);
+                } else {
+                    const errorMessage = `Directions request failed due to ${status}`;
+                    document.getElementById('error-message').innerText = errorMessage;
+                    console.log(errorMessage, request);
+                }
+            });
+        }
     </script>
 </head>
 <body onload="initMap()">
