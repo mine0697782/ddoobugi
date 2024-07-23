@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chatbot with Map</title>
+    <style>
+        body {
+            display: flex;
+        }
+        #chat {
+            width: 40%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #ccc;
+            padding: 10px;
+        }
+        #map-container {
+            width: 60%;
+            height: 100vh;
+        }
+        #messages {
+            flex: 1;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+        }
+        #input-container {
+            display: flex;
+        }
+        #input-container input {
+            flex: 1;
+            padding: 10px;
+        }
+        #input-container button {
+            padding: 10px;
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ api_key }}&callback=initMap" async defer></script>
+    <script>
+        let map;
+        let markers = [];
+        let userLocation = {};
+
+        function initMap() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async function(position) {
+                    userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+
+                    map = new google.maps.Map(document.getElementById('map'), {
+                        center: userLocation,
+                        zoom: 14
+                    });
+
+                    new google.maps.Marker({
+                        position: userLocation,
+                        map: map,
+                        title: 'Your location'
+                    });
+
+                    // Initial search for nearby places
+                    await fetchNearbyPlaces();
+                }, function() {
+                    handleLocationError(true, map.getCenter());
+                });
+            } else {
+                handleLocationError(false, map.getCenter());
+            }
+        }
+
+        function handleLocationError(browserHasGeolocation, pos) {
+            var infoWindow = new google.maps.InfoWindow({
+                position: pos,
+                content: browserHasGeolocation ?
+                    'Error: The Geolocation service failed.' :
+                    'Error: Your browser doesn\'t support geolocation.'
+            });
+            infoWindow.open(map);
+        }
+
+        function placeMarkers(places) {
+            clearMarkers();
+            for (let place of places) {
+                let marker = new google.maps.Marker({
+                    position: {lat: place.geometry.location.lat, lng: place.geometry.location.lng},
+                    map: map,
+                    title: place.name,
+                    icon: 'http://maps.google.com/mapfiles/ms/icons/heart.png'
+                });
+                markers.push(marker);
+            }
+        }
+
+        function clearMarkers() {
+            for (let marker of markers) {
+                marker.setMap(null);
+            }
+            markers = [];
+        }
+
+        async function fetchNearbyPlaces() {
+            const response = await fetch('/search', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ lat: userLocation.lat, lng: userLocation.lng })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                displayMessage('Bot', "Fetched Nearby Places:");
+                data.places.forEach(place => {
+                    displayMessage('Bot', `Name: ${place.name}, Rating: ${place.rating}, Address: ${place.formatted_address}, Reviews: ${place.reviews.map(review => review.text).join(', ')}`);
+                });
+                placeMarkers(data.places);
+            } else {
+                alert(data.error);
+            }
+        }
+
+        async function sendMessage() {
+            const userInput = document.getElementById('inputText').value;
+            displayMessage('User', userInput);
+            await fetchNearbyPlaces();
+        }
+
+        async function updateLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async function(position) {
+                    userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+
+                    map.setCenter(userLocation);
+
+                    new google.maps.Marker({
+                        position: userLocation,
+                        map: map,
+                        title: 'Your location'
+                    });
+
+                    await fetchNearbyPlaces();
+                }, function() {
+                    handleLocationError(true, map.getCenter());
+                });
+            } else {
+                handleLocationError(false, map.getCenter());
+            }
+        }
+
+        function displayMessage(sender, message) {
+            const messageContainer = document.createElement('div');
+            messageContainer.textContent = `${sender}: ${message}`;
+            document.getElementById('messages').appendChild(messageContainer);
+        }
+    </script>
+</head>
+<body>
+    <div id="chat">
+        <div id="messages"></div>
+        <div id="input-container">
+            <input type="text" id="inputText" placeholder="Enter your question">
+            <button onclick="sendMessage()">Send</button>
+            <button onclick="updateLocation()">Update Location</button>
+        </div>
+    </div>
+    <div id="map-container">
+        <div id="map"></div>
+    </div>
+</body>
+</html>
