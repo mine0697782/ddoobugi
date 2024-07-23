@@ -7,16 +7,20 @@ from langchain_openai import AzureChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
 from geopy.distance import geodesic
 
-# 환경 변수 로드
+from langchain.chains import LLMChain
+from langchain.prompts import PromptTemplate
+
+
+# Load environment variables
 load_dotenv()
 
-# Azure OpenAI 설정
+# Azure OpenAI settings
 model_name = os.getenv("AZURE_OPENAI_DEPLOYMENT")
 api_key = os.getenv("AZURE_OPENAI_API_KEY")
 endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
 api_version = os.getenv("OPENAI_API_VERSION")
 
-# Google Maps API 설정
+# Google Maps API settings
 google_maps_api_key = os.getenv("GOOGLE_MAPS_API_KEY")
 
 app = Flask(__name__)
@@ -64,17 +68,27 @@ def recommend_places(chat, places_info, user_location):
     # Prepare the top 3 recommended places
     top_places = sorted_places[:3]
     places_str = "\n".join([f"{i+1}. Name: {place['name']}, Address: {place['address']}, Rating: {place['rating']}, User Ratings: {place['user_ratings_total']}, Open Now: {place['open_now']}, Distance: {place['distance']} meters" for i, place in enumerate(top_places)])
-    prompt = f"Here are some places:\n{places_str}\n\nRecommend the top 3 places based on closest distance and highest rating."
-    resp = chat.invoke([
-        SystemMessage(content=prompt),
-        HumanMessage(content="")
-    ])
-    recommended_places = [place for place in top_places]  # 추천된 장소 목록 반환
+    
+    # Create the prompt template
+    prompt_template = PromptTemplate(input_variables=["places"], template="Here are some places:\n{places}\n\nRecommend the top 3 places based on closest distance and highest rating.")
+    
+    # Create the LLMChain
+    chain = LLMChain(llm=chat, prompt=prompt_template)
+    
+    # Generate the recommendation
+    recommendation = chain.run({"places": places_str})
+    
+    # Assuming the response is a text list of recommended places, extract them
+    recommended_places = [place for place in top_places]  # Modify this line based on the actual response format
+    
     return recommended_places
+
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', google_maps_api_key=google_maps_api_key)
+
+
 
 @app.route('/extract_keywords', methods=['POST'])
 def extract_keywords_route():
@@ -115,11 +129,11 @@ def search():
             azure_deployment=model_name,
             openai_api_key=api_key,
             api_version=api_version,
-            temperature=0
+            temperature=0.9
         )
         
         recommended_places = recommend_places(chat, places_info, user_location)
-        return jsonify(recommendations=recommended_places, results=result["results"])
+        return jsonify(recommendations=recommended_places, results=places_info)
     else:
         return jsonify(results=[])
 
