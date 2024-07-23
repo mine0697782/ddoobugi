@@ -38,6 +38,10 @@
             width: 80%;
             margin: 20px 0;
         }
+        #error-message {
+            color: red;
+            font-weight: bold;
+        }
     </style>
     <script>
         let map;
@@ -45,12 +49,18 @@
         let userMarker;
         let markers = [];
         let userLocation;
+        let directionsService;
+        let directionsRenderer;
 
         function initMap() {
             map = new google.maps.Map(document.getElementById('map'), {
                 center: {lat: 37.5665, lng: 126.9780},
                 zoom: 13
             });
+
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer();
+            directionsRenderer.setMap(map);
 
             panorama = new google.maps.StreetViewPanorama(
                 document.getElementById('street-view'), {
@@ -66,6 +76,8 @@
                         lat: position.coords.latitude,
                         lng: position.coords.longitude
                     };
+
+                    console.log("User Location:", userLocation);
 
                     userMarker = new google.maps.Marker({
                         position: userLocation,
@@ -139,11 +151,21 @@
                 results.forEach(place => {
                     const name = place.name;
                     const address = place.formatted_address;
+                    const rating = place.rating;
+                    const userRatingsTotal = place.user_ratings_total;
+                    const openNow = place.opening_hours && place.opening_hours.open_now ? "Yes" : "No";
                     const lat = place.geometry.location.lat;
                     const lng = place.geometry.location.lng;
 
                     const placeElement = document.createElement('div');
-                    placeElement.innerHTML = `<p><strong>Name:</strong> ${name}<br><strong>Address:</strong> ${address}</p>`;
+                    placeElement.innerHTML = `
+                        <p>
+                            <strong>Name:</strong> ${name}<br>
+                            <strong>Address:</strong> ${address}<br>
+                            <strong>Rating:</strong> ${rating}<br>
+                            <strong>User Ratings:</strong> ${userRatingsTotal}<br>
+                            <strong>Open Now:</strong> ${openNow}
+                        </p>`;
                     placeElement.style.cursor = 'pointer';
                     placeElement.addEventListener('click', () => {
                         showStreetView(lat, lng);
@@ -163,7 +185,26 @@
                     });
                 });
 
-                recommendationsDiv.innerHTML = `<h2>Recommended Places</h2><p>${recommendations}</p>`;
+                recommendationsDiv.innerHTML = '<h2>Recommended Places</h2>';
+                recommendations.forEach((place, index) => {
+                    const placeElement = document.createElement('div');
+                    placeElement.innerHTML = `
+                        <p>
+                            <strong>${index + 1}. Name:</strong> ${place.name}<br>
+                            <strong>Address:</strong> ${place.address}<br>
+                            <strong>Rating:</strong> ${place.rating}<br>
+                            <strong>User Ratings:</strong> ${place.user_ratings_total}<br>
+                            <strong>Open Now:</strong> ${place.open_now}
+                        </p>`;
+                    const button = document.createElement('button');
+                    button.innerText = 'Show Route';
+                    button.onclick = () => {
+                        console.log("Destination:", {lat: place.lat, lng: place.lng});
+                        showRoute(place.lat, place.lng);
+                    };
+                    placeElement.appendChild(button);
+                    recommendationsDiv.appendChild(placeElement);
+                });
             });
         }
 
@@ -177,6 +218,23 @@
             panorama.setVisible(true);
             map.setStreetView(panorama);
         }
+
+        function showRoute(destinationLat, destinationLng) {
+            const request = {
+                origin: userLocation,
+                destination: {lat: destinationLat, lng: destinationLng},
+                travelMode: 'DRIVING'
+            };
+            directionsService.route(request, (result, status) => {
+                if (status === 'OK') {
+                    directionsRenderer.setDirections(result);
+                } else {
+                    const errorMessage = `Directions request failed due to ${status}`;
+                    document.getElementById('error-message').innerText = errorMessage;
+                    console.log(errorMessage, request);
+                }
+            });
+        }
     </script>
 </head>
 <body onload="initMap()">
@@ -189,6 +247,7 @@
     <div id="keywords"></div>
     <div id="results"></div>
     <div id="recommendations"></div>
+    <div id="error-message"></div>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB4dDi7gUQAE2x5DlfzOruagcm88HRfxBs&callback=initMap" async defer></script>
 </body>
 </html>
