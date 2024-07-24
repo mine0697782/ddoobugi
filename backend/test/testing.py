@@ -111,14 +111,37 @@ def recommend_places(chat, places_info, user_location):
 
     return recommended_places
 
-    
+def generate_recommendation_comment(chat, recommended_places, keywords):
+    # 장소들에 대한 정보를 문자열로 변환.
+    places_str = "\n".join([
+        f"{i+1}. Name: {place['name']}, Address: {place['address']}, Rating: {place['rating']}, "
+        f"User Ratings: {place['user_ratings_total']}, Open Now: {place['open_now']}, Distance: {place['distance']} meters"
+        for i, place in enumerate(recommended_places)
+    ])
 
+    # 프롬프트 템플릿 생성
+    prompt_template = PromptTemplate(
+        input_variables=["places", "keywords"],
+        template="Here are some recommended places based on the keywords: {keywords}\n\n{places}\n\n Creatively tell us in Korean why these places are recommended by combining distance, number of reviews, ratings, etc. Don't mention distance, number of reviews, ratings, etc. too directly, but talk about them abstractly. And improve readability by adding line breaks. Lastly, tell me the keywords."
+    )
+
+    # LLMChain 생성
+    chain = LLMChain(llm=chat, prompt=prompt_template)
+
+    # 종합 코멘트 생성
+    response = chain.invoke({"places": places_str, "keywords": ", ".join(keywords)})
+
+    # 응답이 딕셔너리 형식으로 반환될 경우 직접 필요한 정보를 추출.
+    if isinstance(response, dict):
+        overall_comment = response.get("text", "")
+    else:
+        overall_comment = response
+
+    return overall_comment
 
 @app.route('/')
 def index():
     return render_template('index.html', google_maps_api_key=google_maps_api_key)
-
-
 
 @app.route('/extract_keywords', methods=['POST'])
 def extract_keywords_route():
@@ -133,34 +156,9 @@ def extract_keywords_route():
     extracted_keywords = extract_keywords(answer)
     return jsonify(keywords=extracted_keywords)
 
-
-def generate_recommendation_comment(chat, recommended_places):
-    # 장소들에 대한 정보를 문자열로 변환.
-    places_str = "\n".join([
-        f"{i+1}. Name: {place['name']}, Address: {place['address']}, Rating: {place['rating']}, "
-        f"User Ratings: {place['user_ratings_total']}, Open Now: {place['open_now']}, Distance: {place['distance']} meters"
-        for i, place in enumerate(recommended_places)
-    ])
-
-    # 프롬프트 템플릿 생성
-    prompt_template = PromptTemplate(
-        input_variables=["places"],
-        template="Here are some recommended places:\n{places}\n\nProvide a brief overall comment on why these places are recommended, considering their ratings, user reviews, and distances. Please use appropriate line breaks for readability. Please give a creative answer and give it with Korean."
-    )
-
-    # LLMChain 생성
-    chain = LLMChain(llm=chat, prompt=prompt_template)
-
-    # 종합 코멘트 생성
-    response = chain.invoke({"places": places_str})
-
-    # 응답이 딕셔너리 형식으로 반환될 경우 직접 필요한 정보를 추출.
-    if isinstance(response, dict):
-        overall_comment = response.get("text", "")
-    else:
-        overall_comment = response
-
-    return overall_comment
+@app.route('/place')
+def place():
+    return render_template('place.html', google_maps_api_key=google_maps_api_key)
 
 @app.route('/search', methods=['POST'])
 def search():
@@ -188,16 +186,19 @@ def search():
             azure_deployment=model_name,
             openai_api_key=api_key,
             api_version=api_version,
-            temperature=1.5
+            temperature=0.9
         )
+
+        # Extract keywords
+        answer = extract_keywords_from_chat(chat, query)
+        extracted_keywords = extract_keywords(answer)
         
         recommended_places = recommend_places(chat, places_info, user_location)
-        overall_comment = generate_recommendation_comment(chat, recommended_places)
+        overall_comment = generate_recommendation_comment(chat, recommended_places, extracted_keywords)
         
         return jsonify(recommendations=recommended_places, results=places_info, comment=overall_comment)
     else:
         return jsonify(results=[])
-
 
 if __name__ == '__main__':
     app.run(debug=True)

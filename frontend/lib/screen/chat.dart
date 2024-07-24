@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/components/app_theme.dart';
+import 'package:frontend/components/dialog.dart';
 
 class Chat extends StatefulWidget {
   const Chat({super.key});
@@ -31,20 +33,7 @@ class _ChatState extends State<Chat> {
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-        appBar: AppBar(
-            backgroundColor: Colors.white,
-            shape: const Border(
-                bottom: BorderSide(
-              color: Color(0xFFD9D9D9),
-              width: 1,
-            )),
-            title: const Text(
-              "뚜벅이",
-              style: TextStyle(
-                fontFamily: "Hanbit",
-                fontSize: 20,
-              ),
-            )),
+        appBar: const CustomAppBar(),
         resizeToAvoidBottomInset: true,
         body: Scaffold(
           resizeToAvoidBottomInset: true,
