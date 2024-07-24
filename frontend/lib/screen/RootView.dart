@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/components/app_theme.dart';
 
 class RootviewScreen extends StatefulWidget {
   const RootviewScreen({super.key});
@@ -11,20 +12,7 @@ class _RootviewScreenState extends State<RootviewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Image.asset(
-          'assets/images/logo.png',
-          scale: 6,
-        ),
-        backgroundColor: Colors.white,
-        bottom: PreferredSize(
-          preferredSize: Size.fromHeight(2.0),
-          child: Divider(
-            height: 0.8,
-            color: Colors.grey.withOpacity(0.5),
-          ),
-        ),
-      ),
+      appBar: const CustomAppBar(),
       backgroundColor: Colors.white,
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -34,7 +22,7 @@ class _RootviewScreenState extends State<RootviewScreen> {
               padding: const EdgeInsets.all(8.0),
               child: Container(
                 alignment: Alignment.centerLeft,
-                child: Text(
+                child: const Text(
                   "내가 가는 길",
                   style: TextStyle(fontFamily: "Hanbit", fontSize: 30),
                 ),
@@ -46,7 +34,7 @@ class _RootviewScreenState extends State<RootviewScreen> {
               height: 300,
               color: Colors.grey,
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             //따라가기 버튼
@@ -63,7 +51,7 @@ class _RootviewScreenState extends State<RootviewScreen> {
                     ),
                   ),
                   onPressed: () {},
-                  child: Text(
+                  child: const Text(
                     '따라가기',
                     style: TextStyle(
                         fontFamily: "Hanbit",

@@ -51,7 +51,9 @@ class _ChatState extends State<Chat> {
           body: SingleChildScrollView(
             child: Container(
               child: const Column(
-                children: <Widget>[],
+                children: <Widget>[
+                  //채팅창 구현
+                ],
               ),
             ),
           ),

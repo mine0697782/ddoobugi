@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/components/app_theme.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapScreen extends StatefulWidget {
@@ -45,20 +46,7 @@ class _MapScreenState extends State<MapScreen> {
           return true; // Default back button action
         },
         child: Scaffold(
-          appBar: AppBar(
-            title: Image.asset(
-              'assets/images/logo.png',
-              scale: 6,
-            ),
-            backgroundColor: Colors.white,
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(2.0),
-              child: Divider(
-                height: 0.8,
-                color: Colors.grey.withOpacity(0.5),
-              ),
-            ),
-          ),
+          appBar: const CustomAppBar(),
           backgroundColor: Colors.white,
           body: Stack(
             children: [
@@ -161,31 +149,31 @@ void statedialog(BuildContext context, int state) {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Container(
+        child: SizedBox(
           width: 200,
           child: Stack(
             children: [
               Container(
-                margin: EdgeInsets.all(10),
+                margin: const EdgeInsets.all(10),
                 child: Column(
                   mainAxisSize: MainAxisSize
                       .min, // Ensure that the column only takes up as much space as its content
                   children: [
-                    SizedBox(height: 10),
-                    Text(
+                    const SizedBox(height: 10),
+                    const Text(
                       '도착했습니다',
                       style: TextStyle(fontFamily: "Hanbit", fontSize: 25),
                     ),
-                    SizedBox(height: 10),
-                    Text(
+                    const SizedBox(height: 10),
+                    const Text(
                       'WayPoint가 기록됩니다',
                       style: TextStyle(fontFamily: "Hanbit", fontSize: 15),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Container(
+                        SizedBox(
                           width: 180,
                           child: TextButton(
                             style: TextButton.styleFrom(
@@ -197,7 +185,7 @@ void statedialog(BuildContext context, int state) {
                             onPressed: () {
                               Navigator.of(context).pop();
                             },
-                            child: Text('이어하기',
+                            child: const Text('이어하기',
                                 style: TextStyle(color: Colors.white)),
                           ),
                         ),
@@ -213,7 +201,7 @@ void statedialog(BuildContext context, int state) {
                             onPressed: () {
                               Navigator.of(context).pop();
                             },
-                            child: Text('중지',
+                            child: const Text('중지',
                                 style: TextStyle(color: Colors.white)),
                           ),
                         ),
@@ -226,7 +214,7 @@ void statedialog(BuildContext context, int state) {
                 right: 0,
                 top: 0,
                 child: IconButton(
-                  icon: Icon(Icons.close, color: Colors.black),
+                  icon: const Icon(Icons.close, color: Colors.black),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/screen/Map.dart';
 import 'package:frontend/screen/Start.dart';
-import 'package:frontend/screen/Storage.dart';
 import 'package:frontend/screen/StorageView.dart';
 
 import 'screen/login.dart';
+import 'screen/chat.dart';
+import 'screen/Map.dart';
 
 void main() {
   runApp(const Main());
@@ -15,8 +16,11 @@ class Main extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: StorageView(),
+    return MaterialApp(
+      home: const StartScreen(),
+      theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white,
+      ),
     );
   }
 }
