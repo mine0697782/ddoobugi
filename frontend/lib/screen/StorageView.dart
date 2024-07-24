@@ -20,7 +20,6 @@ class _StorageViewState extends State<StorageView> {
           'assets/images/logo.png',
           scale: 6,
         ),
-        backgroundColor: Colors.white,
         actions: [
           _isEditingTitle
               ? IconButton(
@@ -32,7 +31,7 @@ class _StorageViewState extends State<StorageView> {
                   },
                 )
               : IconButton(
-                  icon: Icon(Icons.more_vert, color: Colors.black),
+                  icon: const Icon(Icons.more_vert, color: Colors.black),
                   onPressed: () {
                     setState(() {
                       _isEditingTitle = true;
@@ -64,31 +63,31 @@ class _StorageViewState extends State<StorageView> {
                 fit: BoxFit.cover,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             // 제목
             _isEditingTitle
                 ? TextField(
                     controller: _titleController,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontFamily: "Hanbit",
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
                     ),
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                     ),
                   )
                 : Text(
                     _titleController.text,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontFamily: "Hanbit",
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             // 위치 정보
-            Row(
+            const Row(
               children: [
                 Icon(Icons.location_on, color: Colors.black),
                 SizedBox(width: 8),
@@ -98,9 +97,9 @@ class _StorageViewState extends State<StorageView> {
                 ),
               ],
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             // 시간 정보
-            Row(
+            const Row(
               children: [
                 Icon(Icons.access_time, color: Colors.black),
                 SizedBox(width: 8),
@@ -110,7 +109,7 @@ class _StorageViewState extends State<StorageView> {
                 ),
               ],
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             // 지도 버튼
             GestureDetector(
               onTap: () {
@@ -123,7 +122,7 @@ class _StorageViewState extends State<StorageView> {
                   color: Colors.grey[300],
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Center(
+                child: const Center(
                   child: Text(
                     '지도',
                     style: TextStyle(fontSize: 20, color: Colors.black),
@@ -131,7 +130,7 @@ class _StorageViewState extends State<StorageView> {
                 ),
               ),
             ),
-            Spacer(),
+            const Spacer(),
             // 따라가기 버튼
             SizedBox(
               width: double.infinity,
@@ -146,7 +145,7 @@ class _StorageViewState extends State<StorageView> {
                 onPressed: () {
                   _showFollowDialog(context);
                 },
-                child: Text(
+                child: const Text(
                   '따라가기',
                   style: TextStyle(
                       fontFamily: "Hanbit", fontSize: 20, color: Colors.white),
@@ -253,43 +252,43 @@ class _StorageViewState extends State<StorageView> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Container(
+          child: SizedBox(
             width: 200,
             child: Stack(
               children: [
                 Container(
-                  margin: EdgeInsets.all(10),
+                  margin: const EdgeInsets.all(10),
                   child: Column(
                     mainAxisSize: MainAxisSize
                         .min, // Ensure that the column only takes up as much space as its content
                     children: [
-                      SizedBox(height: 10),
-                      Text(
+                      const SizedBox(height: 10),
+                      const Text(
                         '국민대학교 산책 코스',
                         style: TextStyle(fontFamily: "Hanbit", fontSize: 25),
                       ),
-                      SizedBox(height: 10),
-                      Text(
+                      const SizedBox(height: 10),
+                      const Text(
                         '지도',
                         style: TextStyle(fontFamily: "Hanbit", fontSize: 15),
                       ),
-                      SizedBox(height: 20),
-                      Text(
+                      const SizedBox(height: 20),
+                      const Text(
                         '위치 정릉로 77',
                         style: TextStyle(fontFamily: "Hanbit", fontSize: 15),
                       ),
-                      Text(
+                      const Text(
                         '설명',
                         style: TextStyle(fontFamily: "Hanbit", fontSize: 15),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: 20,
                       ),
                       //버튼
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Container(
+                          SizedBox(
                             width: 180,
                             child: TextButton(
                               style: TextButton.styleFrom(
@@ -301,7 +300,7 @@ class _StorageViewState extends State<StorageView> {
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
-                              child: Text('예',
+                              child: const Text('예',
                                   style: TextStyle(color: Colors.white)),
                             ),
                           ),
@@ -317,7 +316,7 @@ class _StorageViewState extends State<StorageView> {
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
-                              child: Text('아니요',
+                              child: const Text('아니요',
                                   style: TextStyle(color: Colors.white)),
                             ),
                           ),
@@ -330,7 +329,7 @@ class _StorageViewState extends State<StorageView> {
                   right: 0,
                   top: 0,
                   child: IconButton(
-                    icon: Icon(Icons.close, color: Colors.black),
+                    icon: const Icon(Icons.close, color: Colors.black),
                     onPressed: () {
                       Navigator.of(context).pop();
                     },

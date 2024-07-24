@@ -1,11 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/screen/Map.dart';
 import 'package:frontend/screen/Start.dart';
-import 'package:frontend/screen/StorageView.dart';
-
-import 'screen/login.dart';
-import 'screen/chat.dart';
-import 'screen/Map.dart';
 
 void main() {
   runApp(const Main());
