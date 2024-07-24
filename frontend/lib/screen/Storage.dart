@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screen/StorageView.dart';
 
 class StorageScreen extends StatefulWidget {
   const StorageScreen({super.key});
@@ -70,7 +71,10 @@ Widget storage(BuildContext context, bool isEditing) {
             borderRadius: BorderRadius.circular(20),
           ),
           child: InkWell(
-            onTap: () {},
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => StorageView()));
+            },
             child: ClipRRect(
               borderRadius: BorderRadius.circular(20),
               child: ShaderMask(

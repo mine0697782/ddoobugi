@@ -24,7 +24,7 @@ class _StorageViewState extends State<StorageView> {
         actions: [
           _isEditingTitle
               ? IconButton(
-                  icon: Icon(Icons.save, color: Colors.black),
+                  icon: const Icon(Icons.save, color: Colors.black),
                   onPressed: () {
                     setState(() {
                       _isEditingTitle = false;
@@ -41,7 +41,7 @@ class _StorageViewState extends State<StorageView> {
                 ),
         ],
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(2.0),
+          preferredSize: const Size.fromHeight(2.0),
           child: Divider(
             height: 0.8,
             color: Colors.grey.withOpacity(0.5),
