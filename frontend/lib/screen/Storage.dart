@@ -20,7 +20,6 @@ class _StorageScreenState extends State<StorageScreen> {
           scale: 6,
         ),
         shadowColor: Colors.grey,
-        backgroundColor: Colors.white,
         actions: [
           IconButton(
             icon: Icon(_isEditing ? Icons.save : Icons.edit),
@@ -32,7 +31,7 @@ class _StorageScreenState extends State<StorageScreen> {
           ),
         ],
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(2.0),
+          preferredSize: const Size.fromHeight(2.0),
           child: Divider(
             height: 0.8,
             color: Colors.grey.withOpacity(0.5),
@@ -73,7 +72,7 @@ Widget storage(BuildContext context, bool isEditing) {
           child: InkWell(
             onTap: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => StorageView()));
+                  MaterialPageRoute(builder: (context) => const StorageView()));
             },
             child: ClipRRect(
               borderRadius: BorderRadius.circular(20),
@@ -100,7 +99,7 @@ Widget storage(BuildContext context, bool isEditing) {
       Container(
         alignment: Alignment.centerLeft,
         margin: const EdgeInsets.fromLTRB(30, 25, 15, 30),
-        child: Column(
+        child: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
@@ -128,7 +127,7 @@ Widget storage(BuildContext context, bool isEditing) {
           right: 16,
           top: 16,
           child: IconButton(
-            icon: Icon(Icons.close, color: Colors.red),
+            icon: const Icon(Icons.close, color: Colors.red),
             onPressed: () {
               // 아이템 삭제 로직 추가
             },

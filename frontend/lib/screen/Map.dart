@@ -47,7 +47,6 @@ class _MapScreenState extends State<MapScreen> {
         },
         child: Scaffold(
           appBar: const CustomAppBar(),
-          backgroundColor: Colors.white,
           body: Stack(
             children: [
               GoogleMap(
