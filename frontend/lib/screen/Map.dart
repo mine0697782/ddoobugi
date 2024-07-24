@@ -52,7 +52,7 @@ class _MapScreenState extends State<MapScreen> {
             ),
             backgroundColor: Colors.white,
             bottom: PreferredSize(
-              preferredSize: Size.fromHeight(2.0),
+              preferredSize: const Size.fromHeight(2.0),
               child: Divider(
                 height: 0.8,
                 color: Colors.grey.withOpacity(0.5),
@@ -86,24 +86,24 @@ class _MapScreenState extends State<MapScreen> {
                             ? [
                                 IconButton(
                                   onPressed: () {},
-                                  icon: Icon(Icons.search),
+                                  icon: const Icon(Icons.search),
                                   color: Colors.black,
                                 ),
                                 IconButton(
                                   onPressed: () {},
-                                  icon: Icon(Icons.person),
+                                  icon: const Icon(Icons.person),
                                   color: Colors.black,
                                 ),
                                 IconButton(
                                   onPressed: () {
                                     statedialog(context, 70);
                                   },
-                                  icon: Icon(Icons.stop),
+                                  icon: const Icon(Icons.stop),
                                   color: Colors.red,
                                 ),
                                 IconButton(
                                   onPressed: _toggleExpansion,
-                                  icon: Icon(Icons.menu),
+                                  icon: const Icon(Icons.menu),
                                   color: Colors.black,
                                 ),
                               ]
@@ -114,9 +114,9 @@ class _MapScreenState extends State<MapScreen> {
                                   onPressed: _updateTime,
                                   backgroundColor: Colors.white,
                                   heroTag: "refreshButton",
-                                  child:
-                                      Icon(Icons.refresh, color: Colors.black),
                                   elevation: 0,
+                                  child: const Icon(Icons.refresh,
+                                      color: Colors.black),
                                 ),
                                 ElevatedButton(
                                   onPressed: () {},
@@ -126,7 +126,7 @@ class _MapScreenState extends State<MapScreen> {
                                   ),
                                   child: Text(
                                     '${selectedDate.hour}:${selectedDate.minute}:${selectedDate.second}',
-                                    style: TextStyle(color: Colors.black),
+                                    style: const TextStyle(color: Colors.black),
                                   ),
                                 ),
                                 FloatingActionButton(
@@ -135,8 +135,9 @@ class _MapScreenState extends State<MapScreen> {
                                   onPressed: _toggleExpansion,
                                   backgroundColor: Colors.white,
                                   heroTag: "menuButton",
-                                  child: Icon(Icons.menu, color: Colors.black),
                                   elevation: 0,
+                                  child: const Icon(Icons.menu,
+                                      color: Colors.black),
                                 ),
                               ],
                       ),
@@ -158,7 +159,7 @@ void statedialog(BuildContext context, int state) {
     builder: (context) {
       return Dialog(
         child: Container(
-          margin: EdgeInsets.all(10),
+          margin: const EdgeInsets.all(10),
           width: 400,
           height: 400,
           child: Column(
