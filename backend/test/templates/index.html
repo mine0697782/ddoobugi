@@ -1,7 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Place Chat</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
             display: flex;
@@ -11,12 +14,13 @@
             height: 100vh;
             margin: 0;
             overflow: hidden;
+            background-color: #f8f9fa;
         }
         #chat-container {
             display: flex;
             flex-direction: column;
             width: 80%;
-            height: 80%;
+            height: 50%;
             border: 1px solid #ccc;
             border-radius: 10px;
             padding: 10px;
@@ -24,17 +28,17 @@
             margin-top: 20px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
-        #chat-container .message {
+        .message {
             margin: 10px 0;
             padding: 10px;
             border-radius: 10px;
             max-width: 70%;
         }
-        #chat-container .user {
+        .user {
             align-self: flex-end;
             background-color: #d1e7dd;
         }
-        #chat-container .bot {
+        .bot {
             align-self: flex-start;
             background-color: #f1f1f1;
         }
@@ -56,9 +60,14 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 100%;
-            height: 20%;
+            width: 80%;
+            height: 30%;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 10px;
             overflow-y: auto;
+            margin-top: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
         .place-item {
             border: 1px solid #ccc;
@@ -67,6 +76,18 @@
             margin: 5px;
             width: 95%;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
+        #quick-buttons {
+            display: flex;
+            justify-content: center;
+            width: 80%;
+            margin: 10px 0;
+        }
+        .quick-button {
+            margin: 0 10px;
+            padding: 10px 20px;
+            font-size: 1.2em;
             cursor: pointer;
         }
     </style>
@@ -124,60 +145,108 @@
                 .then(data => {
                     const results = data.results;
                     const recommendations = data.recommendations;
-                    const overallComment = data.comment;
 
                     const resultsContainer = document.getElementById('results-container');
                     resultsContainer.innerHTML = '';
 
-                    results.forEach((place) => {
-                        const name = place.name;
-                        const address = place.address;
-                        const rating = place.rating;
-                        const userRatingsTotal = place.user_ratings_total;
-                        const openNow = place.open_now ? "Yes" : "No";
+                    results.forEach((place, index) => {
+                        const placeElement = `
+                            <div class="place-item">
+                                <h3>${index + 1}. ${place.name}</h3>
+                                <p><strong>Address:</strong> ${place.address}</p>
+                                <p><strong>Rating:</strong> ${place.rating}</p>
+                                <p><strong>User Ratings:</strong> ${place.user_ratings_total}</p>
+                                <p><strong>Open Now:</strong> ${place.open_now ? "Yes" : "No"}</p>
+                                <p><strong>Distance:</strong> ${place.distance ? place.distance.toFixed(2) : 'N/A'} meters</p>
+                            </div>`;
 
-                        const placeElement = document.createElement('div');
-                        placeElement.classList.add('place-item');
-                        placeElement.innerHTML = `
-                            <h3>${name}</h3>
-                            <p><strong>Address:</strong> ${address}</p>
-                            <p><strong>Rating:</strong> ${rating}</p>
-                            <p><strong>User Ratings:</strong> ${userRatingsTotal}</p>
-                            <p><strong>Open Now:</strong> ${openNow}</p>`;
-                        placeElement.addEventListener('click', () => {
-                            showPlace(name, address, rating, userRatingsTotal, openNow, distance);
-                        });
-                        resultsContainer.appendChild(placeElement);
+                        resultsContainer.innerHTML += placeElement;
                     });
 
-                    recommendations.slice(0, 3).forEach((place, index) => {
+                    recommendations.forEach((place, index) => {
                         const placeElement = `
                             <h3>${index + 1}. ${place.name}</h3>
                             <p><strong>Address:</strong> ${place.address}</p>
                             <p><strong>Rating:</strong> ${place.rating}</p>
                             <p><strong>User Ratings:</strong> ${place.user_ratings_total}</p>
                             <p><strong>Open Now:</strong> ${place.open_now ? "Yes" : "No"}</p>
-                            <p><strong>Distance:</strong> ${place.distance.toFixed(2)} meters</p>`;
+                            <p><strong>Distance:</strong> ${place.distance.toFixed(2)} meters</p>
+                            <p><strong>소개:</strong> ${place.comment}</p>`;
 
-                        appendMessage('bot', placeElement, () => showPlace(place.name, place.address, place.rating, place.user_ratings_total, place.open_now ? "Yes" : "No"));
+                        appendMessage('bot', placeElement, () => showPlace(
+                            place.name, 
+                            place.address, 
+                            place.rating, 
+                            place.user_ratings_total, 
+                            place.open_now ? "Yes" : "No", 
+                            place.distance.toFixed(2),
+                            place.comment
+                        ));
                     });
-
-                    appendMessage('bot', `<strong>Overall Comment:</strong> ${overallComment}`);
                 });
             });
         }
 
-        function showPlace(name, address, rating, userRatingsTotal, openNow) {
-            const url = `/place?name=${encodeURIComponent(name)}&address=${encodeURIComponent(address)}&rating=${rating}&userRatingsTotal=${userRatingsTotal}&openNow=${openNow}`;
+        function showPlace(name, address, rating, userRatingsTotal, openNow, distance, comment) {
+            const url = `/place?name=${encodeURIComponent(name)}&address=${encodeURIComponent(address)}&rating=${rating}&userRatingsTotal=${userRatingsTotal}&openNow=${openNow}&distance=${distance}&comment=${encodeURIComponent(comment)}`;
             window.location.href = url;
+        }
+
+        function quickSearch(keyword) {
+            appendMessage('user', keyword);
+            searchPlaces(keyword);
+        }
+
+        function searchRestroom() {
+            appendMessage('user', '화장실');
+            navigator.geolocation.getCurrentPosition((position) => {
+                const userLocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+
+                fetch('/search_restroom', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ latitude: userLocation.lat, longitude: userLocation.lng })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const recommendations = data.recommendations;
+
+                    recommendations.forEach((place, index) => {
+                        const placeElement = `
+                            <h3>${index + 1}. ${place.name}</h3>
+                            <p><strong>Address:</strong> ${place.address}</p>
+                            <p><strong>Distance:</strong> ${place.distance.toFixed(2)} meters</p>`;
+
+
+                        appendMessage('bot', placeElement, () => showPlace(
+                            place.name, 
+                            place.address, 
+                            place.rating, 
+                            place.user_ratings_total, 
+                            place.open_now ? "Yes" : "No", 
+                            place.distance.toFixed(2),
+                            place.comment
+                        ));
+                    });
+                });
+            });
         }
     </script>
 </head>
 <body>
     <div id="chat-container"></div>
+    <div id="quick-buttons">
+        <button class="btn btn-secondary quick-button" onclick="searchRestroom()">화장실</button>
+        <button class="btn btn-secondary quick-button" onclick="quickSearch('편의점')">편의점</button>
+    </div>
     <div id="input-container">
-        <input type="text" id="input_text" placeholder="Enter your message">
-        <button id="send_button" onclick="sendMessage()">Send</button>
+        <input type="text" id="input_text" class="form-control" placeholder="Enter your message">
+        <button id="send_button" class="btn btn-primary" onclick="sendMessage()">Send</button>
     </div>
     <div id="results-container"></div>
 </body>

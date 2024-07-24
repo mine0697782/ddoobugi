@@ -1,30 +1,104 @@
-from flask import Blueprint, render_template, abort, current_app
+from flask import Blueprint, render_template, abort, current_app, jsonify, request, url_for, redirect
+from flask_login import LoginManager, login_user
 from jinja2 import TemplateNotFound
 from werkzeug.utils import safe_join
+from pymongo import MongoClient
+import jwt
+import datetime
+import hashlib
+
 import os
 
 main = Blueprint('main', __name__)
 
+uri = "mongodb://localhost:27017/"
+client = MongoClient(uri)
+db = client["ddoobugi"]
+db_user = db["User"]
+SECRET_KEY = os.getenv("SECRET_KEY")
+
 @main.route('/')
 def index():
-    return "Hello, World!"
+    return "<h1>Hello, World!</h1>"
 
-@main.route('/<page>')
-def show(page):
+@main.route('/users')
+def get_users():
+    users = db_user.find({})
+    res = []
+    for u in users:
+        res.append(u["name"])
+        print(u)
+    return jsonify({"result" : res})
+
+@main.route('/chat')
+def chat():
+    return "chat"
+
+@main.post('/register')
+def register():
+    email = request.json["email"]
+    password = request.json["password"]
+    name = request.json["name"]
+    pw_hash = hashlib.sha256(password.encode('utf-8')).hexdigest()
+
+    is_exist = db_user.find_one({"email": email})
+    if (is_exist):
+        return jsonify({"result" : "email already exist"})
+    else:
+        db_user.insert_one({"email": email, "password": pw_hash, "name": name})
+    return jsonify({"result": "success"})
+
+
+@main.post('/login')
+def login():
+    email = request.json["email"]
+    password = request.json["password"]
+    pw_hash = hashlib.sha256(password.encode('utf-8')).hexdigest()
+
+    user = db_user.find_one({"email": email})
+    if not user:
+        return 'user not exist'
+    if user["password"] == pw_hash:
+        payload = {
+            "email" : email,
+            "exp" : datetime.datetime.now() + datetime.timedelta(14)
+        }
+        token = jwt.encode(payload, SECRET_KEY, algorithm='HS256')#.decode('utf-8')
+
+        return jsonify({"result" : "success", "token" : token})
+    else :
+        return jsonify({"result" : "fail", "msg" : "password is not correct!"})
+
+@main.route('/name')
+def api_valid():
+    # token_receive = request.cookies.get("mytoken")
+    try :
+        token_receive = request.json["token"]
+        print("header: ", request.headers)
+        print("toekn : ", token_receive)
+    except KeyError:
+        print("token is not exist")
+        return "token is not exist"
+    except Exception as e:
+        print("error : ", e)
+        return ("error : ", e)
+        
+
     try:
-        # 안전하게 경로를 결합
-        template_path = os.path.join('pages', f'{page}.html')
-        # print(template_path)
+        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=["HS256"])
+        print(payload)
 
-        full_template_path = os.path.join(current_app.root_path, 'templates', template_path)
-        # print(f"Looking for template at: {full_template_path}")
+        userinfo = db_user.find_one({"email": payload["email"]})
+        return jsonify({"result" : "success", "name" : userinfo["name"]})
+    except jwt.ExpiredSignatureError:
+        return jsonify({"result" : "fail", "msg" : "login expired"})
+    except jwt.exceptions.DecodeError:
+        return jsonify({"result" : "fail", "msg" : "login info is not valid"})
 
-        # 템플릿 경로가 존재하는지 확인
-        if not os.path.isfile(full_template_path):
-            # print(f"Template not found: {full_template_path}")
-            abort(404)
-        # print('return')
-        return render_template(template_path)
-    except TemplateNotFound:
-        # print('not found')
-        abort(404)
+@main.route('/list')
+def get_list():
+    users = db_user.find_one()
+    print(users)
+    # for u in users:
+        # print(u)
+    return 'list'
