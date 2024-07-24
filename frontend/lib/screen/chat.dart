@@ -9,7 +9,13 @@ class Chat extends StatefulWidget {
 
 class _ChatState extends State<Chat> {
   TextEditingController chat_controller = TextEditingController();
-  var recommend = ["주변 화장실 알려줘", "가까운 카페알려줘"];
+  var recommend = [
+    "다음 웨이포인트 이어가기",
+    "주변 화장실 알려줘",
+    "가까운 카페알려줘",
+    "공원 찾아줘",
+    "가까운 편의점 경로 알려줘"
+  ];
   String InputChat = "";
   List<Widget> recommendWidget = <Widget>[];
 
@@ -35,7 +41,19 @@ class _ChatState extends State<Chat> {
             )),
         resizeToAvoidBottomInset: true,
         body: Scaffold(
-          body: const SingleChildScrollView(),
+          resizeToAvoidBottomInset: true,
+          body: SingleChildScrollView(
+            child: Container(
+              child: Column(
+                children: <Widget>[
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.772,
+                  ),
+                  Chat_auto(size)
+                ],
+              ),
+            ),
+          ),
           bottomNavigationBar: Row(
             children: [
               Padding(
@@ -79,6 +97,42 @@ class _ChatState extends State<Chat> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Container Chat_auto(Size size) {
+    return Container(
+      height: 50,
+      width: size.width * 1,
+      margin: const EdgeInsets.only(left: 5, right: 5),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: recommend.length,
+        itemBuilder: (context, index) {
+          return SizedBox(
+            height: 50,
+            child: TextButton(
+              onPressed: () {
+                setState(() {
+                  InputChat = recommend[index];
+                  chat_controller.text = InputChat;
+                });
+              },
+              style: TextButton.styleFrom(
+                backgroundColor: const Color(0xFFD9D9D9),
+                //fixedSize:
+              ),
+              child: Text(
+                recommend[index],
+                style: const TextStyle(color: Colors.black),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
