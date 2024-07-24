@@ -156,48 +156,81 @@ class _MapScreenState extends State<MapScreen> {
 void statedialog(BuildContext context, int state) {
   showDialog(
     context: context,
-    builder: (context) {
+    builder: (BuildContext context) {
       return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
         child: Container(
-          margin: const EdgeInsets.all(10),
-          width: 400,
-          height: 400,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          width: 200,
+          child: Stack(
             children: [
-              const SizedBox(
-                height: 15,
+              Container(
+                margin: EdgeInsets.all(10),
+                child: Column(
+                  mainAxisSize: MainAxisSize
+                      .min, // Ensure that the column only takes up as much space as its content
+                  children: [
+                    SizedBox(height: 10),
+                    Text(
+                      '도착했습니다',
+                      style: TextStyle(fontFamily: "Hanbit", fontSize: 25),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      'WayPoint가 기록됩니다',
+                      style: TextStyle(fontFamily: "Hanbit", fontSize: 15),
+                    ),
+                    SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          width: 180,
+                          child: TextButton(
+                            style: TextButton.styleFrom(
+                              backgroundColor: Colors.lightBlue,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text('이어하기',
+                                style: TextStyle(color: Colors.white)),
+                          ),
+                        ),
+                        Flexible(
+                          fit: FlexFit.loose,
+                          child: TextButton(
+                            style: TextButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: Text('중지',
+                                style: TextStyle(color: Colors.white)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              const Text(
-                "도착하였습니다 \n Waypoint가 기록됩니다",
-                style: TextStyle(fontFamily: "bm", fontSize: 20),
-              ),
-              const SizedBox(
-                height: 15,
-              ),
-              Image.asset(
-                "assets/images/turtle.png",
-                scale: 2,
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              const Text(
-                "대단해요!",
-                style: TextStyle(fontFamily: "bma", fontSize: 20),
-              ),
-              const Text(
-                "앞으로도 멋진 모습 기대할게요!",
-                style: TextStyle(fontFamily: "bma", fontSize: 16),
-              ),
-              const SizedBox(
-                height: 15,
-              ),
-              IconButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                icon: const Icon(Icons.close),
+              Positioned(
+                right: 0,
+                top: 0,
+                child: IconButton(
+                  icon: Icon(Icons.close, color: Colors.black),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
               ),
             ],
           ),
