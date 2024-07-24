@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="login-container">
+    <form method="POST" action="{{ url_for('auth.login') }}" class="login-form">
+        <h2>Login</h2>
+        <div class="input-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div class="input-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit" class="login-button">Login</button>
+    </form>
+</div>
+
+<style>
+    body {
+        background-color: #e0f2e9;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        font-family: Arial, sans-serif;
+    }
+    .login-container {
+        background-color: #ffffff;
+        padding: 40px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        width: 400px;
+    }
+    .login-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .login-form h2 {
+        margin-bottom: 30px;
+        color: #2e7d32;
+    }
+    .input-group {
+        margin-bottom: 20px;
+        width: 100%;
+    }
+    .input-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #388e3c;
+    }
+    .input-group input {
+        width: calc(100% - 20px);
+        padding: 15px;
+        border: 1px solid #c8e6c9;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+    .login-button {
+        background-color: #4caf50;
+        color: white;
+        padding: 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        width: 100%;
+        font-size: 18px;
+    }
+    .login-button:hover {
+        background-color: #45a049;
+    }
+</style>
+{% endblock %}

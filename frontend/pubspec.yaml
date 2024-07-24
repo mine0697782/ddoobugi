@@ -37,8 +37,11 @@ dependencies:
   cupertino_icons: ^1.0.6
   google_maps_flutter: ^2.7.0
   google_maps_flutter_web: ^0.5.8
-  webview_flutter: 3.0.4
-  permission_handler: ^10.0.0
+  webview_flutter: ^4.8.0
+  permission_handler: ^11.3.1
+  mongo_dart: ^0.10.3
+  location: ^7.0.0
+  geolocator: ^12.0.0
 
 dev_dependencies:
   flutter_test:
@@ -49,7 +52,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^3.0.0
+  flutter_lints: ^4.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -79,7 +82,9 @@ flutter:
   # list giving the asset and other descrisptors for the font. For
   # example:
   assets:
-    - assets/images
+    - assets/
+    - assets/images/sample1.png
+    - assets/images/logo.png
   fonts:
     - family: 'Hanbit'
       fonts:

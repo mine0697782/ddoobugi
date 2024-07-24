@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Place Chat</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            background-color: #f8f9fa;
+        }
+        #chat-container {
+            display: flex;
+            flex-direction: column;
+            width: 80%;
+            height: 50%;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 10px;
+            overflow-y: auto;
+            margin-top: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 70%;
+        }
+        .user {
+            align-self: flex-end;
+            background-color: #d1e7dd;
+        }
+        .bot {
+            align-self: flex-start;
+            background-color: #f1f1f1;
+        }
+        #input-container {
+            display: flex;
+            width: 80%;
+            margin: 10px 0;
+        }
+        #input_text {
+            flex-grow: 1;
+            padding: 10px;
+            font-size: 1.2em;
+        }
+        #send_button {
+            padding: 10px 20px;
+            font-size: 1.2em;
+        }
+        #results-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 80%;
+            height: 30%;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 10px;
+            overflow-y: auto;
+            margin-top: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .place-item {
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 5px;
+            width: 95%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
+        #quick-buttons {
+            display: flex;
+            justify-content: center;
+            width: 80%;
+            margin: 10px 0;
+        }
+        .quick-button {
+            margin: 0 10px;
+            padding: 10px 20px;
+            font-size: 1.2em;
+            cursor: pointer;
+        }
+    </style>
+    <script>
+        function appendMessage(sender, text, onClick = null) {
+            const chatContainer = document.getElementById('chat-container');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender);
+            messageDiv.innerHTML = text;
+            if (onClick) {
+                messageDiv.style.cursor = 'pointer';
+                messageDiv.addEventListener('click', onClick);
+            }
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function sendMessage() {
+            const userInput = document.getElementById('input_text').value;
+            if (!userInput.trim()) return;
+
+            appendMessage('user', userInput);
+
+            fetch('/extract_keywords', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ input_text: userInput })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const keywords = data.keywords.join(' ');
+                searchPlaces(keywords);
+            });
+
+            document.getElementById('input_text').value = '';
+        }
+
+        function searchPlaces(keywords) {
+            navigator.geolocation.getCurrentPosition((position) => {
+                const userLocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+
+                fetch('/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ query: keywords, latitude: userLocation.lat, longitude: userLocation.lng })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const results = data.results;
+                    const recommendations = data.recommendations;
+
+                    const resultsContainer = document.getElementById('results-container');
+                    resultsContainer.innerHTML = '';
+
+                    results.forEach((place, index) => {
+                        const placeElement = `
+                            <div class="place-item">
+                                <h3>${index + 1}. ${place.name}</h3>
+                                <p><strong>Address:</strong> ${place.address}</p>
+                                <p><strong>Rating:</strong> ${place.rating}</p>
+                                <p><strong>User Ratings:</strong> ${place.user_ratings_total}</p>
+                                <p><strong>Open Now:</strong> ${place.open_now ? "Yes" : "No"}</p>
+                                <p><strong>Distance:</strong> ${place.distance ? place.distance.toFixed(2) : 'N/A'} meters</p>
+                            </div>`;
+
+                        resultsContainer.innerHTML += placeElement;
+                    });
+
+                    recommendations.forEach((place, index) => {
+                        const placeElement = `
+                            <h3>${index + 1}. ${place.name}</h3>
+                            <p><strong>Address:</strong> ${place.address}</p>
+                            <p><strong>Rating:</strong> ${place.rating}</p>
+                            <p><strong>User Ratings:</strong> ${place.user_ratings_total}</p>
+                            <p><strong>Open Now:</strong> ${place.open_now ? "Yes" : "No"}</p>
+                            <p><strong>Distance:</strong> ${place.distance.toFixed(2)} meters</p>
+                            <p><strong>소개:</strong> ${place.comment}</p>`;
+
+                        appendMessage('bot', placeElement, () => showPlace(
+                            place.name, 
+                            place.address, 
+                            place.rating, 
+                            place.user_ratings_total, 
+                            place.open_now ? "Yes" : "No", 
+                            place.distance.toFixed(2),
+                            place.comment
+                        ));
+                    });
+                });
+            });
+        }
+
+        function showPlace(name, address, rating, userRatingsTotal, openNow, distance, comment) {
+            const url = `/place?name=${encodeURIComponent(name)}&address=${encodeURIComponent(address)}&rating=${rating}&userRatingsTotal=${userRatingsTotal}&openNow=${openNow}&distance=${distance}&comment=${encodeURIComponent(comment)}`;
+            window.location.href = url;
+        }
+
+        function quickSearch(keyword) {
+            appendMessage('user', keyword);
+            searchPlaces(keyword);
+        }
+
+        function searchRestroom() {
+            appendMessage('user', '화장실');
+            navigator.geolocation.getCurrentPosition((position) => {
+                const userLocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+
+                fetch('/search_restroom', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ latitude: userLocation.lat, longitude: userLocation.lng })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const recommendations = data.recommendations;
+
+                    recommendations.forEach((place, index) => {
+                        const placeElement = `
+                            <h3>${index + 1}. ${place.name}</h3>
+                            <p><strong>Address:</strong> ${place.address}</p>
+                            <p><strong>Distance:</strong> ${place.distance.toFixed(2)} meters</p>`;
+
+
+                        appendMessage('bot', placeElement, () => showPlace(
+                            place.name, 
+                            place.address, 
+                            place.rating, 
+                            place.user_ratings_total, 
+                            place.open_now ? "Yes" : "No", 
+                            place.distance.toFixed(2),
+                            place.comment
+                        ));
+                    });
+                });
+            });
+        }
+    </script>
+</head>
+<body>
+    <div id="chat-container"></div>
+    <div id="quick-buttons">
+        <button class="btn btn-secondary quick-button" onclick="searchRestroom()">화장실</button>
+        <button class="btn btn-secondary quick-button" onclick="quickSearch('편의점')">편의점</button>
+    </div>
+    <div id="input-container">
+        <input type="text" id="input_text" class="form-control" placeholder="Enter your message">
+        <button id="send_button" class="btn btn-primary" onclick="sendMessage()">Send</button>
+    </div>
+    <div id="results-container"></div>
+</body>
+</html>
