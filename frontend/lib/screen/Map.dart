@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/components/app_theme.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapScreen extends StatefulWidget {
@@ -45,20 +46,7 @@ class _MapScreenState extends State<MapScreen> {
           return true; // Default back button action
         },
         child: Scaffold(
-          appBar: AppBar(
-            title: Image.asset(
-              'assets/images/logo.png',
-              scale: 6,
-            ),
-            backgroundColor: Colors.white,
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(2.0),
-              child: Divider(
-                height: 0.8,
-                color: Colors.grey.withOpacity(0.5),
-              ),
-            ),
-          ),
+          appBar: const CustomAppBar(),
           backgroundColor: Colors.white,
           body: Stack(
             children: [
@@ -156,48 +144,81 @@ class _MapScreenState extends State<MapScreen> {
 void statedialog(BuildContext context, int state) {
   showDialog(
     context: context,
-    builder: (context) {
+    builder: (BuildContext context) {
       return Dialog(
-        child: Container(
-          margin: const EdgeInsets.all(10),
-          width: 400,
-          height: 400,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: SizedBox(
+          width: 200,
+          child: Stack(
             children: [
-              const SizedBox(
-                height: 15,
+              Container(
+                margin: const EdgeInsets.all(10),
+                child: Column(
+                  mainAxisSize: MainAxisSize
+                      .min, // Ensure that the column only takes up as much space as its content
+                  children: [
+                    const SizedBox(height: 10),
+                    const Text(
+                      '도착했습니다',
+                      style: TextStyle(fontFamily: "Hanbit", fontSize: 25),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'WayPoint가 기록됩니다',
+                      style: TextStyle(fontFamily: "Hanbit", fontSize: 15),
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SizedBox(
+                          width: 180,
+                          child: TextButton(
+                            style: TextButton.styleFrom(
+                              backgroundColor: Colors.lightBlue,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('이어하기',
+                                style: TextStyle(color: Colors.white)),
+                          ),
+                        ),
+                        Flexible(
+                          fit: FlexFit.loose,
+                          child: TextButton(
+                            style: TextButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text('중지',
+                                style: TextStyle(color: Colors.white)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              const Text(
-                "도착하였습니다 \n Waypoint가 기록됩니다",
-                style: TextStyle(fontFamily: "bm", fontSize: 20),
-              ),
-              const SizedBox(
-                height: 15,
-              ),
-              Image.asset(
-                "assets/images/turtle.png",
-                scale: 2,
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              const Text(
-                "대단해요!",
-                style: TextStyle(fontFamily: "bma", fontSize: 20),
-              ),
-              const Text(
-                "앞으로도 멋진 모습 기대할게요!",
-                style: TextStyle(fontFamily: "bma", fontSize: 16),
-              ),
-              const SizedBox(
-                height: 15,
-              ),
-              IconButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                icon: const Icon(Icons.close),
+              Positioned(
+                right: 0,
+                top: 0,
+                child: IconButton(
+                  icon: const Icon(Icons.close, color: Colors.black),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
               ),
             ],
           ),

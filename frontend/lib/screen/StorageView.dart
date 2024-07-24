@@ -24,7 +24,7 @@ class _StorageViewState extends State<StorageView> {
         actions: [
           _isEditingTitle
               ? IconButton(
-                  icon: Icon(Icons.save, color: Colors.black),
+                  icon: const Icon(Icons.save, color: Colors.black),
                   onPressed: () {
                     setState(() {
                       _isEditingTitle = false;
@@ -41,7 +41,7 @@ class _StorageViewState extends State<StorageView> {
                 ),
         ],
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(2.0),
+          preferredSize: const Size.fromHeight(2.0),
           child: Divider(
             height: 0.8,
             color: Colors.grey.withOpacity(0.5),
@@ -160,6 +160,92 @@ class _StorageViewState extends State<StorageView> {
   }
 
   void _showFollowDialog(BuildContext context) {
+    // 같을경우 이어갈지 질문
+    //   showDialog(
+    //     context: context,
+    //     builder: (BuildContext context) {
+    //       return Dialog(
+    //         shape: RoundedRectangleBorder(
+    //           borderRadius: BorderRadius.circular(10),
+    //         ),
+    //         child: Container(
+    //           width: 200,
+    //           child: Stack(
+    //             children: [
+    //               Container(
+    //                 margin: EdgeInsets.all(10),
+    //                 child: Column(
+    //                   mainAxisSize: MainAxisSize
+    //                       .min, // Ensure that the column only takes up as much space as its content
+    //                   children: [
+    //                     SizedBox(height: 10),
+    //                     Text(
+    //                       '내가 가는 길',
+    //                       style: TextStyle(fontFamily: "Hanbit", fontSize: 25),
+    //                     ),
+    //                     SizedBox(height: 10),
+    //                     Text(
+    //                       '루트대로 시작할까요?',
+    //                       style: TextStyle(fontFamily: "Hanbit", fontSize: 15),
+    //                     ),
+    //                     SizedBox(height: 20),
+    //                     Row(
+    //                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //                       children: [
+    //                         Container(
+    //                           width: 180,
+    //                           child: TextButton(
+    //                             style: TextButton.styleFrom(
+    //                               backgroundColor: Colors.lightBlue,
+    //                               shape: RoundedRectangleBorder(
+    //                                 borderRadius: BorderRadius.circular(10),
+    //                               ),
+    //                             ),
+    //                             onPressed: () {
+    //                               Navigator.of(context).pop();
+    //                             },
+    //                             child: Text('예',
+    //                                 style: TextStyle(color: Colors.white)),
+    //                           ),
+    //                         ),
+    //                         Flexible(
+    //                           fit: FlexFit.loose,
+    //                           child: TextButton(
+    //                             style: TextButton.styleFrom(
+    //                               backgroundColor: Colors.red,
+    //                               shape: RoundedRectangleBorder(
+    //                                 borderRadius: BorderRadius.circular(10),
+    //                               ),
+    //                             ),
+    //                             onPressed: () {
+    //                               Navigator.of(context).pop();
+    //                             },
+    //                             child: Text('아니요',
+    //                                 style: TextStyle(color: Colors.white)),
+    //                           ),
+    //                         ),
+    //                       ],
+    //                     ),
+    //                   ],
+    //                 ),
+    //               ),
+    //               Positioned(
+    //                 right: 0,
+    //                 top: 0,
+    //                 child: IconButton(
+    //                   icon: Icon(Icons.close, color: Colors.black),
+    //                   onPressed: () {
+    //                     Navigator.of(context).pop();
+    //                   },
+    //                 ),
+    //               ),
+    //             ],
+    //           ),
+    //         ),
+    //       );
+    //     },
+    //   );
+    // }
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -169,7 +255,6 @@ class _StorageViewState extends State<StorageView> {
           ),
           child: Container(
             width: 200,
-            height: 300,
             child: Stack(
               children: [
                 Container(
@@ -179,15 +264,33 @@ class _StorageViewState extends State<StorageView> {
                         .min, // Ensure that the column only takes up as much space as its content
                     children: [
                       SizedBox(height: 10),
-                      Text('내가 가는 길'),
+                      Text(
+                        '국민대학교 산책 코스',
+                        style: TextStyle(fontFamily: "Hanbit", fontSize: 25),
+                      ),
                       SizedBox(height: 10),
-                      Text('루트대로 시작할까요?'),
+                      Text(
+                        '지도',
+                        style: TextStyle(fontFamily: "Hanbit", fontSize: 15),
+                      ),
                       SizedBox(height: 20),
+                      Text(
+                        '위치 정릉로 77',
+                        style: TextStyle(fontFamily: "Hanbit", fontSize: 15),
+                      ),
+                      Text(
+                        '설명',
+                        style: TextStyle(fontFamily: "Hanbit", fontSize: 15),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      //버튼
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          SizedBox(
-                            width: 300,
+                          Container(
+                            width: 180,
                             child: TextButton(
                               style: TextButton.styleFrom(
                                 backgroundColor: Colors.lightBlue,
@@ -202,18 +305,21 @@ class _StorageViewState extends State<StorageView> {
                                   style: TextStyle(color: Colors.white)),
                             ),
                           ),
-                          TextButton(
-                            style: TextButton.styleFrom(
-                              backgroundColor: Colors.red,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
+                          Flexible(
+                            fit: FlexFit.loose,
+                            child: TextButton(
+                              style: TextButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
                               ),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text('아니요',
+                                  style: TextStyle(color: Colors.white)),
                             ),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: Text('아니요',
-                                style: TextStyle(color: Colors.white)),
                           ),
                         ],
                       ),

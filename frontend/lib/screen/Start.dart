@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/screen/Map.dart'; // 올바른 경로인지 확인하세요.
+import 'package:frontend/screen/Storage.dart';
+import 'package:frontend/screen/StorageView.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class StartScreen extends StatelessWidget {
@@ -81,7 +83,10 @@ class StartScreen extends StatelessWidget {
                 ),
                 shadowColor: Colors.grey,
               ),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => StorageScreen()));
+              },
               child: const Text(
                 "이전 기록따라 움직이기",
                 style: TextStyle(
