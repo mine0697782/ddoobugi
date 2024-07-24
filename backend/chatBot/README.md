@@ -1,7 +1,7 @@
 # chatBot
----
-* 디렉토리 구조
 
+## 디렉토리 구조
+'''
   my_flask_app/
 ├── app/
 │   ├── __init__.py
@@ -17,3 +17,4 @@
 ├── config.py
 ├── requirements.txt
 ├── run.py
+'''
