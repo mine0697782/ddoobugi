@@ -17,7 +17,13 @@ class _ChatState extends State<Chat> {
     "가까운 편의점 경로 알려줘"
   ];
   String InputChat = "";
-  List<Widget> recommendWidget = <Widget>[];
+
+  void _sendMessage() {
+    if (chat_controller.text.isNotEmpty) {
+      //정보 보내기
+      chat_controller.clear();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,56 +50,59 @@ class _ChatState extends State<Chat> {
           resizeToAvoidBottomInset: true,
           body: SingleChildScrollView(
             child: Container(
-              child: Column(
-                children: <Widget>[
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.772,
-                  ),
-                  Chat_auto(size)
-                ],
+              child: const Column(
+                children: <Widget>[],
               ),
             ),
           ),
-          bottomNavigationBar: Row(
+          bottomNavigationBar: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Padding(
-                padding: const EdgeInsets.all(10),
-                child: SizedBox(
-                  width: size.width * 0.8,
-                  height: size.height * 0.05,
-                  child: TextField(
-                    controller: chat_controller,
-                    decoration: const InputDecoration(
-                        hintText: "메세지를 입력하세요...",
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Color(0xFFD9D9D9),
-                          ),
+              Chat_auto(size),
+              Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: SizedBox(
+                      width: size.width * 0.8,
+                      height: size.height * 0.05,
+                      child: TextField(
+                        controller: chat_controller,
+                        decoration: const InputDecoration(
+                            hintText: "메세지를 입력하세요...",
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Color(0xFFD9D9D9),
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Color(0xFFD9D9D9),
+                              ),
+                            ),
+                            focusColor: Color(0xFFD9D9D9),
+                            focusedBorder: OutlineInputBorder(
+                                borderSide:
+                                    BorderSide(color: Color(0xFFD9D9D9)))),
+                        style: const TextStyle(
+                          fontSize: 13,
                         ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Color(0xFFD9D9D9),
-                          ),
-                        ),
-                        focusColor: Color(0xFFD9D9D9),
-                        focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Color(0xFFD9D9D9)))),
-                    style: const TextStyle(
-                      fontSize: 13,
+                      ),
                     ),
                   ),
-                ),
+                  IconButton(
+                      onPressed: () {
+                        setState(() {
+                          InputChat = chat_controller.text;
+                          _sendMessage();
+                        });
+                      },
+                      icon: const Icon(
+                        Icons.send,
+                        color: Color(0xFF00C9FF),
+                      ))
+                ],
               ),
-              IconButton(
-                  onPressed: () {
-                    setState(() {
-                      InputChat = chat_controller.text;
-                    });
-                  },
-                  icon: const Icon(
-                    Icons.send,
-                    color: Color(0xFF00C9FF),
-                  ))
             ],
           ),
         ),
