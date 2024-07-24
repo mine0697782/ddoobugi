@@ -25,6 +25,7 @@ google_maps_api_key = os.getenv("GOOGLE_MAPS_API_KEY")
 
 app = Flask(__name__)
 
+
 def extract_keywords(text):
     text = text.lower()
     expression = r".*keywords:(.+?)$"
@@ -83,7 +84,8 @@ def recommend_places(chat, places_info, user_location):
     # 프롬프트 템플릿 생성
     prompt_template = PromptTemplate(
         input_variables=["places"], 
-        template="Here are some places:\n{places}\n\nRecommend the top 3 places based on closest distance and highest rating. Basically, recommend in order of distance, but if the number of reviews is overwhelmingly high, recommend that place first."
+        template="Here are some places:\n{places}\n\nRecommend the top 3 places based on closest distance and highest rating."
+                 "Basically, recommend in order of distance, but if the number of reviews is overwhelmingly high, recommend that place first."
     )
 
     # LLMChain 생성
@@ -119,7 +121,10 @@ def generate_comment_for_place(chat, place, keywords):
     prompt_template = PromptTemplate(
         input_variables=["place", "keywords"],
         template="Here is a place:\n{place}\n\nAnd this is a Keywords in sentences searched by users:\n{keywords}\n\nGive a detailed and engaging comment about this place in Korean. Describe why this place is worth visiting."
+                 "Please do not directly mention distance, rating, number of reviews, etc."
+                 "Please specify what this place does"
                  "And print the keywords you got."
+                 "Please respond in a legible manner."
     )
 
     chain = LLMChain(llm=chat, prompt=prompt_template)
