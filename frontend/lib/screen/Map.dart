@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/components/app_theme.dart';
+import 'package:frontend/screen/chat.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapScreen extends StatefulWidget {
@@ -72,7 +73,13 @@ class _MapScreenState extends State<MapScreen> {
                         children: isExpanded
                             ? [
                                 IconButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                const Chat()));
+                                  },
                                   icon: const Icon(Icons.search),
                                   color: Colors.black,
                                 ),
