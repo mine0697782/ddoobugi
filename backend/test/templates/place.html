@@ -33,19 +33,25 @@
             font-size: 1.2em;
             margin: 5px 0;
         }
-        #map {
+        #place-photo {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        #map, #street-view {
             height: 60%;
             width: 80%;
             margin: 10px 0;
             border-radius: 10px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
-        .info-icon {
-            margin-right: 10px;
+        #street-view {
+            display: none;
         }
     </style>
     <script>
-        let map, directionsService, directionsRenderer, currentLocation, destinationLocation;
+        let map, directionsService, directionsRenderer, currentLocation, destinationLocation, streetView;
 
         function initMap() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -58,12 +64,12 @@
             const comment = urlParams.get('comment');
 
             document.getElementById('place-name').innerText = name;
-            document.getElementById('place-address').innerHTML = `<i class="info-icon fas fa-map-marker-alt"></i>Address: ${address}`;
-            document.getElementById('place-rating').innerHTML = `<i class="info-icon fas fa-star"></i>Rating: ${rating}`;
-            document.getElementById('place-user-ratings-total').innerHTML = `<i class="info-icon fas fa-users"></i>User Ratings: ${userRatingsTotal}`;
-            document.getElementById('place-open-now').innerHTML = `<i class="info-icon fas fa-clock"></i>Open Now: ${openNow ? "Yes" : "No"}`;
-            document.getElementById('place-distance').innerHTML = `<i class="info-icon fas fa-road"></i>Distance: ${distance} meters`;
-            document.getElementById('place-comment').innerHTML = `<i class="info-icon fas fa-info-circle"></i>소개: ${comment}`;
+            document.getElementById('place-address').innerText = `Address: ${address}`;
+            document.getElementById('place-rating').innerText = `Rating: ${rating}`;
+            document.getElementById('place-user-ratings-total').innerText = `User Ratings: ${userRatingsTotal}`;
+            document.getElementById('place-open-now').innerText = `Open Now: ${openNow ? "Yes" : "No"}`;
+            document.getElementById('place-distance').innerText = `Distance: ${distance} meters`;
+            document.getElementById('place-comment').innerText = `소개: ${comment}`;
 
             directionsService = new google.maps.DirectionsService();
             directionsRenderer = new google.maps.DirectionsRenderer();
@@ -116,10 +122,51 @@
                     } else {
                         console.error('Geolocation is not supported by this browser.');
                     }
+
+                    // Get place details to fetch the photo
+                    const service = new google.maps.places.PlacesService(map);
+                    service.getDetails({ placeId: results[0].place_id }, (place, status) => {
+                        if (status === google.maps.places.PlacesServiceStatus.OK) {
+                            console.log('Place details:', place); // 콘솔에 place 객체 출력
+                            if (place.photos && place.photos.length > 0) {
+                                const photoUrl = place.photos[0].getUrl({ maxWidth: 800 });
+                                console.log('Photo URL:', photoUrl); // 콘솔에 photoUrl 출력
+                                document.getElementById('place-photo').src = photoUrl;
+                            }
+                        } else {
+                            console.error('No photos available for this place.');
+                        }
+                    });
                 } else {
-                    alert('Geocode was not successful for the following reason: ' + status);
+                    console.error('Place details request failed due to ' + status);
                 }
             });
+
+            streetView = new google.maps.StreetViewPanorama(
+                document.getElementById('street-view'), {
+                    pov: {
+                        heading: 34,
+                        pitch: 10
+                    }
+                });
+        }
+
+        function toggleView() {
+            const mapElement = document.getElementById('map');
+            const streetViewElement = document.getElementById('street-view');
+            const toggleButton = document.getElementById('toggle-view-button');
+
+            if (mapElement.style.display === 'none') {
+                mapElement.style.display = 'block';
+                streetViewElement.style.display = 'none';
+                toggleButton.innerText = '로드뷰 보기';
+            } else {
+                mapElement.style.display = 'none';
+                streetViewElement.style.display = 'block';
+                streetView.setPosition(destinationLocation);
+                streetView.setVisible(true);
+                toggleButton.innerText = '지도 보기';
+            }
         }
 
         function calculateAndDisplayRoute() {
@@ -144,11 +191,11 @@
             });
         }
     </script>
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </head>
 <body onload="initMap()">
     <div id="details-container">
         <h1 id="place-name"></h1>
+        <img id="place-photo" alt="Place Photo">
         <p id="place-address"></p>
         <p id="place-rating"></p>
         <p id="place-user-ratings-total"></p>
@@ -156,8 +203,10 @@
         <p id="place-distance"></p>
         <p id="place-comment"></p>
         <button class="btn btn-primary" onclick="calculateAndDisplayRoute()">Get Directions</button>
+        <button id="toggle-view-button" class="btn btn-secondary" onclick="toggleView()">로드뷰 보기</button>
     </div>
     <div id="map"></div>
-    <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap" async defer></script>
+    <div id="street-view"></div>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&libraries=places&callback=initMap" async defer></script>
 </body>
 </html>
