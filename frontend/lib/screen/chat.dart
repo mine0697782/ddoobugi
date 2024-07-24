@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/components/app_theme.dart';
+import 'package:frontend/components/dialog.dart';
 
 class Chat extends StatefulWidget {
   const Chat({super.key});
