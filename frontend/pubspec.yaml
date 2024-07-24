@@ -80,6 +80,8 @@ flutter:
   # example:
   assets:
     - assets/
+    - assets/images/sample1.png
+    - assets/images/logo.png
   fonts:
     - family: 'Hanbit'
       fonts:
