@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/components/app_theme.dart';
 import 'package:frontend/screen/chat.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -14,7 +16,7 @@ class _MapScreenState extends State<MapScreen> {
   late GoogleMapController mapController;
   DateTime selectedDate = DateTime.now();
   bool isExpanded = false;
-
+  bool _myLocationEnabled = false;
   final LatLng _center = const LatLng(37.6098, 127.0737);
 
   void _onMapCreated(GoogleMapController controller) {
@@ -31,6 +33,24 @@ class _MapScreenState extends State<MapScreen> {
     setState(() {
       isExpanded = !isExpanded;
     });
+  }
+
+  Future<void> _currentLocation() async {
+    final position = await Geolocator.getCurrentPosition();
+    final cameraPosition = CameraPosition(
+      target: LatLng(position.latitude, position.longitude),
+      zoom: 18,
+    );
+    mapController.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
+    setState(() {
+      _myLocationEnabled = true;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _currentLocation();
   }
 
   @override
@@ -54,8 +74,10 @@ class _MapScreenState extends State<MapScreen> {
                 onMapCreated: _onMapCreated,
                 initialCameraPosition: CameraPosition(
                   target: _center,
-                  zoom: 11.0,
+                  zoom: 20.0,
                 ),
+                myLocationEnabled: _myLocationEnabled,
+                myLocationButtonEnabled: true,
               ),
               Align(
                 alignment: Alignment.bottomCenter,

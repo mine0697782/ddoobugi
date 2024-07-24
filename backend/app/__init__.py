@@ -1,11 +1,11 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from dotenv import load_dotenv
+import os
 
 def create_app():
     app = Flask(__name__)
-
-    # 여기에 설정이나 초기화를 추가할 수 있습니다.
-    app.config['SECRET_KEY'] = 'your_secret_key'
+    app.secret_key = os.getenv("SECRET_KEY")
 
     from .routes import main as main_blueprint
     app.register_blueprint(main_blueprint)
