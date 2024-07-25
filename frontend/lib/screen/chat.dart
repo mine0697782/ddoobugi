@@ -35,7 +35,10 @@ class _ChatState extends State<Chat> {
   Future<void> sendData(BuildContext context, Map<String, String> send) async {
     var url = "$serverUrl/chat/select";
     final response = await http.post(Uri.parse(url),
-        headers: <String, String>{}, body: jsonEncode(send));
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(send));
   }
 
   Future<void> onFieldSubmitted(
@@ -98,111 +101,124 @@ class _ChatState extends State<Chat> {
             child: Container(
               child: Column(
                 children: <Widget>[
-                  Align(
-                      alignment: Alignment.topCenter,
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        reverse: true,
-                        itemBuilder: (context, index) {
-                          ChatClass currentChat = CHAT[index];
-                          List<Map<String, dynamic>> places =
-                              currentChat.message["places"];
-                          if (currentChat.type == ChatMessageType.sent) {
-                            return Container(
-                              height: 100,
-                              width: size.width * 0.6,
-                              decoration: const BoxDecoration(
-                                  color: Color.fromARGB(255, 61, 24, 24)),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    currentChat.message,
-                                    style: const TextStyle(
-                                      color: Colors.black,
+                  if (CHAT.isNotEmpty)
+                    Align(
+                        alignment: Alignment.topCenter,
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          reverse: true,
+                          itemCount: CHAT.length,
+                          itemBuilder: (context, index) {
+                            ChatClass currentChat = CHAT[index];
+                            List<Map<String, dynamic>> places =
+                                currentChat.message["places"];
+                            if (currentChat.type == ChatMessageType.sent) {
+                              return Container(
+                                height: size.height * 0.8,
+                                width: size.width * 0.6,
+                                decoration: const BoxDecoration(
+                                    color: Color.fromARGB(255, 61, 24, 24)),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      currentChat.message,
+                                      style: const TextStyle(
+                                        color: Colors.black,
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              );
+                            } else if (currentChat.type ==
+                                ChatMessageType.received) {
+                              return Container(
+                                height: size.height * 0.5,
+                                width: size.width * 0.6,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFFD9D9D9),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "다음은 해당 위치에서 갈 수 있는 곳을 추천한 결과입니다.눌러서 세부 정보를 확인하세요",
+                                      style: TextStyle(color: Colors.black),
                                     ),
-                                  )
-                                ],
-                              ),
-                            );
-                          } else if (currentChat.type ==
-                              ChatMessageType.received) {
-                            return Container(
-                              height: size.height * 0.5,
-                              width: size.width * 0.6,
-                              decoration: const BoxDecoration(
-                                color: Color(0xFFD9D9D9),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text(
-                                    "다음은 해당 위치에서 갈 수 있는 곳을 추천한 결과입니다.눌러서 세부 정보를 확인하세요",
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                  ListView.builder(
-                                      itemBuilder: (context, index_) {
-                                    double fontSize = 10;
-                                    Map<String, dynamic> currentPlace =
-                                        places[index_];
-                                    return GestureDetector(
-                                      onTap: () {
-                                        Map<String, String> request = {
-                                          "token": "",
-                                          "chat": chat_controller.text,
-                                          "rid": "",
-                                          "place_id": currentPlace["place_id"],
-                                        };
-                                        sendData(context, request);
-                                      },
-                                      child: Container(
-                                          width: size.width * 0.5,
-                                          height: size.height * 0.35,
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          child: Column(children: [
-                                            Text(currentPlace["place_name"],
-                                                style: TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: fontSize + 5)),
-                                            Text("점수: ${currentPlace["score"]}",
-                                                style: TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: fontSize)),
-                                            Text(
-                                                "거리: ${currentPlace["distance"]}",
-                                                style: TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: fontSize)),
-                                            Text(
-                                                "주소: ${currentPlace["address"]}",
-                                                style: TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: fontSize)),
-                                            Text(
-                                                "이유: ${currentPlace["reason"]}",
-                                                style: TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: fontSize)),
-                                            Text(
-                                                "요약: ${currentPlace["summary"]}",
-                                                style: TextStyle(
-                                                    color: Colors.black,
-                                                    fontSize: fontSize))
-                                          ])),
-                                    );
-                                  })
-                                ],
-                              ),
-                            );
-                          }
-                          return null;
-                        },
-                        controller: scrollController,
-                      ))
+                                    ListView.builder(
+                                        shrinkWrap: true,
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        itemCount: currentChat
+                                            .message["places"].lenght,
+                                        itemBuilder: (context, index_) {
+                                          setState(() {});
+                                          double fontSize = 10;
+                                          Map<String, dynamic> currentPlace =
+                                              places[index_];
+                                          return GestureDetector(
+                                            onTap: () {
+                                              Map<String, String> request = {
+                                                "token": userdata.Usertoken,
+                                                "chat": chat_controller.text,
+                                                "rid": "",
+                                                "place_id":
+                                                    currentPlace["place_id"],
+                                              };
+                                              sendData(context, request);
+                                            },
+                                            child: Container(
+                                                width: size.width * 0.5,
+                                                height: size.height * 0.35,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                ),
+                                                child: Column(children: [
+                                                  Text(
+                                                      currentPlace[
+                                                          "place_name"],
+                                                      style: TextStyle(
+                                                          color: Colors.black,
+                                                          fontSize:
+                                                              fontSize + 5)),
+                                                  Text(
+                                                      "점수: ${currentPlace["score"]}",
+                                                      style: TextStyle(
+                                                          color: Colors.black,
+                                                          fontSize: fontSize)),
+                                                  Text(
+                                                      "거리: ${currentPlace["distance"]}",
+                                                      style: TextStyle(
+                                                          color: Colors.black,
+                                                          fontSize: fontSize)),
+                                                  Text(
+                                                      "주소: ${currentPlace["address"]}",
+                                                      style: TextStyle(
+                                                          color: Colors.black,
+                                                          fontSize: fontSize)),
+                                                  Text(
+                                                      "이유: ${currentPlace["reason"]}",
+                                                      style: TextStyle(
+                                                          color: Colors.black,
+                                                          fontSize: fontSize)),
+                                                  Text(
+                                                      "요약: ${currentPlace["summary"]}",
+                                                      style: TextStyle(
+                                                          color: Colors.black,
+                                                          fontSize: fontSize))
+                                                ])),
+                                          );
+                                        })
+                                  ],
+                                ),
+                              );
+                            }
+                            return null;
+                          },
+                          controller: scrollController,
+                        ))
                 ],
               ),
             ),
@@ -246,7 +262,7 @@ class _ChatState extends State<Chat> {
                       onPressed: () {
                         //chatting
                         Map<String, dynamic> chatting = {
-                          "token": "",
+                          "token": userdata.Usertoken,
                           "chat": chat_controller.text,
                           "lat": userdata.lat,
                           "lon": userdata.lot,
