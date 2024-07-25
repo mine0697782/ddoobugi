@@ -6,6 +6,27 @@ import 'package:frontend/components/server.dart';
 import 'package:frontend/screen/StorageView.dart';
 import 'package:http/http.dart' as http;
 
+Future<bool> deleteStorage(String id) async {
+  var headers = {
+    'Authorization':
+        'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IjEyMyIsImV4cCI6MTcyMzExMTc2OX0.PtU9eUoXtngMStHVbFgdl14uFZfrf1_bQAbf-NB2sWw',
+    'Content-Type': 'application/json; charset=UTF-8',
+  };
+
+  final response = await http.post(
+    Uri.parse('$serverUrl/routes/$id/delete'),
+    headers: headers,
+  );
+
+  if (response.statusCode == 200) {
+    log("삭제 됨");
+    return true; // 성공적으로 삭제됨
+  } else {
+    log("아이템 삭제 실패: ${response.body}");
+    return false; // 삭제 실패
+  }
+}
+
 Future<List<Storage_form>> fetchStorage() async {
   var headers = {
     'Authorization':
@@ -21,7 +42,7 @@ Future<List<Storage_form>> fetchStorage() async {
   if (response.statusCode == 200) {
     var jsonResponse = jsonDecode(utf8.decode(response.bodyBytes));
     // 응답에서 'routes' 필드를 추출
-    var storeList = jsonResponse['routes'] as List;
+    var storeList = jsonResponse['data'] as List;
     List<Storage_form> stores =
         storeList.map((storeJson) => Storage_form.fromJson(storeJson)).toList();
     log("/routes 불러옴");
@@ -54,6 +75,7 @@ class Storage_form {
       image: json['image'] ??
           Image.asset(
             'assets/images/sample1.png',
+            scale: 6,
           ),
     );
   }
@@ -76,12 +98,28 @@ class _StorageScreenState extends State<StorageScreen> {
     futureStorage = fetchStorage();
   }
 
+  Future<void> _handleDelete(String id) async {
+    bool success = await deleteStorage(id);
+    if (success) {
+      // 삭제가 성공했으므로 데이터를 다시 로드하여 UI를 업데이트합니다.
+      setState(() {
+        futureStorage = fetchStorage();
+      });
+    } else {
+      // 삭제 실패 시 사용자에게 알림을 표시할 수 있습니다.
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('아이템 삭제에 실패했습니다.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: Image.asset(
             'assets/images/logo.png',
+            scale: 6,
           ),
           backgroundColor: Colors.white,
           shadowColor: Colors.grey,
@@ -131,7 +169,7 @@ class _StorageScreenState extends State<StorageScreen> {
                         ),
                         Center(
                           child: Text(
-                            '데이터가 존재하지 않습니다. 잠시 후 시도해주십시오',
+                            '데이터가 존재하지 않습니다. 잠시 후 시도해주십시오!', //${snapshot.error}',
                             style: TextStyle(
                                 fontFamily: "bm",
                                 fontSize: 20,
@@ -149,7 +187,7 @@ class _StorageScreenState extends State<StorageScreen> {
                           ),
                           Center(
                             child: Text(
-                              '데이터가 존재하지 않습니다. 잠시 후 시도해주십시오',
+                              '데이터가 존재하지 않습니다. 잠시 후 시도해주십시오?',
                               style: TextStyle(
                                   fontFamily: "bm",
                                   fontSize: 20,
@@ -169,6 +207,7 @@ class _StorageScreenState extends State<StorageScreen> {
                             storageData.address,
                             storageData.image,
                             _isEditing,
+                            _handleDelete,
                           );
                         }).toList(),
                       );
@@ -176,7 +215,7 @@ class _StorageScreenState extends State<StorageScreen> {
                   } else {
                     return const Center(
                       child: Text(
-                        '데이터가 존재하지 않습니다. 잠시 후 시도해주십시오',
+                        '데이터가 존재하지 않습니다. 잠시 후 시도해주십시오-사실 에러',
                         style: TextStyle(
                             fontFamily: "bm", fontSize: 20, color: Colors.grey),
                       ),
@@ -190,8 +229,15 @@ class _StorageScreenState extends State<StorageScreen> {
   }
 }
 
-Container storage(context, String id, String rootname, String address, image,
-    bool isEditing) {
+Container storage(
+  context,
+  String id,
+  String rootname,
+  String address,
+  image,
+  bool isEditing,
+  Future<void> Function(String) handleDelete,
+) {
   return Container(
     child: Stack(
       children: [
@@ -268,7 +314,8 @@ Container storage(context, String id, String rootname, String address, image,
             child: IconButton(
               icon: const Icon(Icons.close, color: Colors.red),
               onPressed: () {
-                // 아이템 삭제 로직 추가
+                // 아이템 삭제 로직 호출
+                handleDelete(id);
               },
             ),
           ),
