@@ -33,7 +33,10 @@ def make_prompt(user_input, lat, lon, nearby_places):
                 "거리": "약 1.1km",
                 "이유": "넓은 캠퍼스와 자연환경",
                 "주소": "서울특별시 성북구 정릉로 77",
-                "place_id": "ChIJ77_K3R29fDURvJJ7pOnAfN4"
+                "place_id": "ChIJ77_K3R29fDURvJJ7pOnAfN4",
+                "위도": 10.0000001,
+                "경도": 10.0000001
+
             }},
             {{
                 "이름": "정릉종합사회복지관",
@@ -42,7 +45,9 @@ def make_prompt(user_input, lat, lon, nearby_places):
                 "거리": "약 0.6km",
                 "이유": "주변에 산책로와 공원",
                 "주소": "서울특별시 성북구 솔샘로5길 92",
-                "place_id": "ChIJzcA9deO8fDURrCFrBxkM1QY"
+                "place_id": "ChIJzcA9deO8fDURrCFrBxkM1QY",
+                "위도": 10.0000001,
+                "경도": 10.0000001
             }},
             {{
                 "이름": "솔샘터널",
@@ -51,7 +56,9 @@ def make_prompt(user_input, lat, lon, nearby_places):
                 "거리": "약 1.4km",
                 "이유": "아름다운 자연경관",
                 "주소": "서울특별시 강북구 미아동",
-                "place_id": "ChIJd08_k_e8fDURYeoKW3a58cE"
+                "place_id": "ChIJd08_k_e8fDURYeoKW3a58cE",
+                "위도": 10.0000001,
+                "경도": 10.0000001
             }}
         ]
         이런식으로 주면돼 다른 양식은 안돼 무조건 이 양식으로 줘

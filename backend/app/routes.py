@@ -262,6 +262,20 @@ def route_detail(rid):
         
     return jsonify({"result" : "success", "data" : route})
 
+@main.post("/routes/<rid>/update")
+def route_update(rid):
+    return ("/routes/<rid>/update")
+
+@main.post("/routes/<rid>/delete")
+def route_delete(rid):
+    print("/routes/<rid>/delete")
+    try :
+        deleted = db_route.find_one_and_delete({"_id":ObjectId(str(rid))})
+        print("deleted : ", deleted)
+    except Exception as e:
+        return e
+    return jsonify({"result" : "success"})
+
 @main.route("/token")
 def token():
     received = request.headers["Authorization"]
