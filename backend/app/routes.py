@@ -252,10 +252,14 @@ def routes():
 def route_detail(rid):
     print("/routes/rid")
     print("rid : "+ str(rid))
-    route = db_route.find_one({"_id": ObjectId(str(rid))})
-    route.pop("_id")
-    route["id"] = rid
-    print(route)
+    try:
+        route = db_route.find_one({"_id": ObjectId(str(rid))})
+        route.pop("_id")
+        route["id"] = rid
+        print(route)
+    except Exception as e:
+        return e
+        
     return jsonify({"result" : "success", "data" : route})
 
 @main.route("/token")
