@@ -2,6 +2,10 @@ import requests
 import re
 import json
 from langchain_openai import AzureChatOpenAI
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def search_nearby_places(lat, lng, google_maps_api_key, radius=1000, place_type="point_of_interest"):
     url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json"
@@ -31,11 +35,11 @@ def get_place_details(place_id, google_maps_api_key):
         return response.json().get('result', {})
     return {}
 
-def summarize_places_with_gpt(prompt, config):
+def summarize_places_with_gpt(prompt):
     model = AzureChatOpenAI(
-        azure_deployment=config['AZURE_OPENAI_DEPLOYMENT'],
-        openai_api_key=config['AZURE_OPENAI_API_KEY'],
-        api_version=config['OPENAI_API_VERSION'],
+        azure_deployment=os.getenv('AZURE_OPENAI_DEPLOYMENT'),
+        openai_api_key=os.getenv('AZURE_OPENAI_API_KEY'),
+        api_version=os.getenv('OPENAI_API_VERSION'),
         temperature=0.7
     )
     response = model.invoke(prompt)
