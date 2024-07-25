@@ -10,6 +10,7 @@ import random
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from functools import lru_cache
+import json
 
 # Load environment variables
 load_dotenv()
@@ -25,7 +26,22 @@ google_maps_api_key = os.getenv("GOOGLE_MAPS_API_KEY")
 
 app = Flask(__name__)
 
+# 저장할 파일 경로
+PLACES_FILE = 'places.json'
 
+# 장소를 파일에 저장하는 함수
+def save_places_to_file(places):
+    with open(PLACES_FILE, 'w', encoding='utf-8') as f:
+        json.dump(places, f, ensure_ascii=False, indent=4)
+
+# 파일에서 장소를 불러오는 함수
+def load_places_from_file():
+    if os.path.exists(PLACES_FILE):
+        with open(PLACES_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    return []
+
+# 키워드 추출 함수
 def extract_keywords(text):
     text = text.lower()
     expression = r".*keywords:(.+?)$"
@@ -35,6 +51,7 @@ def extract_keywords(text):
             return [re.sub(r"\.$", "", k.strip()) for k in keywords.strip().split(',')]
     return []
 
+# ChatGPT 모델에 입력 텍스트 전달 후 주요 키워드를 추출
 def extract_keywords_from_chat(chat, input_text):
     resp = chat.invoke([
                 SystemMessage(content=
@@ -59,65 +76,41 @@ def search_place(query):
         return None
 
 def recommend_places(chat, places_info, user_location):
-    # 필터링: 현재 열려 있는 장소만 포함
     open_places = [place for place in places_info if place['open_now']]
-
-    # 사용자 위치로부터 각 장소까지의 거리 계산
     for place in open_places:
         place_location = (place['lat'], place['lng'])
         place['distance'] = geodesic(user_location, place_location).meters
-
-    # 장소를 무작위로 섞음
     random.shuffle(open_places)
-    # 거리와 평점 기준으로 장소 정렬
-    #sorted_places = sorted(open_places, key=lambda x: (x['distance'], -x['rating']))
-
-    # 장소들을 선택하여 LLMChain의 입력으로 사용
     top_places = open_places[:]
-    #top_places = sorted_places[:]
     places_str = "\n".join([
         f"{i+1}. Name: {place['name']}, Address: {place['address']}, Rating: {place['rating']}, "
         f"User Ratings: {place['user_ratings_total']}, Open Now: {place['open_now']}, Distance: {place['distance']} meters"
         for i, place in enumerate(top_places)
     ])
-
-    # 프롬프트 템플릿 생성
     prompt_template = PromptTemplate(
         input_variables=["places"], 
         template="Here are some places:\n{places}\n\nRecommend the top 3 places based on closest distance and highest rating."
-                 "Basically, recommend in order of distance, but if the number of reviews is overwhelmingly high, recommend that place first."
     )
-
-    # LLMChain 생성
     chain = LLMChain(llm=chat, prompt=prompt_template)
-
-    # 추천 생성
     response = chain.invoke({"places": places_str})
-
-    # 응답이 딕셔너리 형식으로 반환될 경우 직접 필요한 정보를 추출
     if isinstance(response, dict):
         recommendation_text = response.get("text", "")
-        recommended_place_names = recommendation_text.split("\n")  # 응답에서 장소 이름을 추출하는 로직 필요
+        recommended_place_names = recommendation_text.split("\n")
     else:
-        recommended_place_names = []  # 오류 처리
-
-    # 추천 장소
+        recommended_place_names = []
     recommended_places = []
     for place_name in recommended_place_names:
-        # 장소 이름이 응답에 포함되어 있는 경우, 상위 10개 장소 리스트에서 찾아 추가
         for place in top_places:
             if place_name.strip() in place['name'] and place not in recommended_places:
                 recommended_places.append(place)
                 break
         if len(recommended_places) >= 3:
             break
-
     return recommended_places
 
 def generate_comment_for_place(chat, place, keywords):
     place_str = f"Name: {place['name']}, Address: {place['address']}, Rating: {place['rating']}, " \
                 f"User Ratings: {place['user_ratings_total']}, Open Now: {place['open_now']}, Distance: {place['distance']} meters"
-
     prompt_template = PromptTemplate(
         input_variables=["place", "keywords"],
         template="Here is a place:\n{place}\n\nAnd this is a Keywords in sentences searched by users:\n{keywords}\n\nGive a detailed and engaging comment about this place in Korean. Describe why this place is worth visiting."
@@ -126,15 +119,12 @@ def generate_comment_for_place(chat, place, keywords):
                  "And print the keywords you got."
                  "Please respond in a legible manner."
     )
-
     chain = LLMChain(llm=chat, prompt=prompt_template)
     response = chain.invoke({"place": place_str, "keywords": ", ".join(keywords)})
-
     if isinstance(response, dict):
         comment = response.get("text", "")
     else:
         comment = response
-
     return comment
 
 @app.route('/')
@@ -165,7 +155,6 @@ def search():
     user_lat = data.get("latitude")
     user_lng = data.get("longitude")
     user_location = (user_lat, user_lng)
-
     result = search_place(query)
     if result and "results" in result:
         places_info = []
@@ -179,26 +168,49 @@ def search():
                 "lat": place["geometry"]["location"]["lat"],
                 "lng": place["geometry"]["location"]["lng"]
             })
-        
         chat = AzureChatOpenAI(
             azure_deployment=model_name,
             openai_api_key=api_key,
             api_version=api_version,
             temperature=0.9
         )
-
         answer = extract_keywords_from_chat(chat, query)
         extracted_keywords = extract_keywords(answer)
-        
         recommended_places = recommend_places(chat, places_info, user_location)
         comments = [generate_comment_for_place(chat, place, extracted_keywords) for place in recommended_places]
-        
         for place, comment in zip(recommended_places, comments):
             place["comment"] = comment
-        
         return jsonify(recommendations=recommended_places, results=places_info)
     else:
         return jsonify(results=[])
+
+@app.route('/save_place', methods=['POST'])
+def save_place():
+    data = request.json
+    places = load_places_from_file()
+    places.append(data)
+    save_places_to_file(places)
+    return jsonify({"message": "Place saved successfully"}), 201
+
+@app.route('/delete_place', methods=['POST'])
+def delete_place():
+    data = request.json
+    index = data.get('index')
+    places = load_places_from_file()
+    if 0 <= index < len(places):
+        places.pop(index)
+        save_places_to_file(places)
+        return jsonify({"message": "Place deleted successfully"}), 200
+    return jsonify({"message": "Invalid index"}), 400
+
+@app.route('/saved_places', methods=['GET'])
+def saved_places():
+    places = load_places_from_file()
+    return jsonify(places)
+
+@app.route('/show_saved_places')
+def show_saved_places():
+    return render_template('saved_places.html')
 
 @app.route('/search_restroom', methods=['POST'])
 def search_restroom():
@@ -206,7 +218,6 @@ def search_restroom():
     user_lat = data.get("latitude")
     user_lng = data.get("longitude")
     user_location = (user_lat, user_lng)
-
     query = "화장실"
     result = search_place(query)
     if result and "results" in result:
@@ -221,13 +232,11 @@ def search_restroom():
                 "lat": place["geometry"]["location"]["lat"],
                 "lng": place["geometry"]["location"]["lng"]
             })
-        
         for place in places_info:
             place_location = (place['lat'], place['lng'])
             place['distance'] = geodesic(user_location, place_location).meters
         sorted_places = sorted(places_info, key=lambda x: x['distance'])
         top_places = sorted_places[:3]
-        
         return jsonify(recommendations=top_places, results=places_info)
     else:
         return jsonify(results=[])
