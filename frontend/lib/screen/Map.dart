@@ -67,7 +67,9 @@ class _MapScreenState extends State<MapScreen> {
     final response = await http.get(Uri.parse(url));
     final data = json.decode(response.body);
 
-    if (data['routes'].isNotEmpty) {
+    print('API response: $data'); // Debugging line to check API response
+
+    if (data['status'] == 'OK') {
       final points = data['routes'][0]['overview_polyline']['points'];
       final List<LatLng> result = _decodePolyline(points);
       setState(() {
@@ -79,6 +81,8 @@ class _MapScreenState extends State<MapScreen> {
           width: 5,
         ));
       });
+    } else {
+      print('Error fetching directions: ${data['error_message']}');
     }
   }
 

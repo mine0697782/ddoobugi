@@ -43,6 +43,14 @@ dependencies:
   location: ^7.0.0
   geolocator: ^12.0.0
   http: ^1.2.2
+  url_launcher: ^6.1.10
+  # tmap_ui_sdk:
+  #   git:
+  #     url: https://github.com/TmapSDK/TmapUI_FlutterSDK.git
+  #     ref: 1.0.41 # version. git tag name
+  provider: ^6.0.3 
+  go_router: ^8.0.1
+  fluttertoast: ^8.2.2
 
 dev_dependencies:
   flutter_test:

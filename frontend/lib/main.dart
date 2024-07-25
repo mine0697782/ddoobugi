@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/screen/Login.dart';
 import 'package:frontend/screen/Start.dart';
+import 'package:frontend/screen/Map.dart';
 
 void main() {
   runApp(const Main());

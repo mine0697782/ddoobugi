@@ -8,7 +8,8 @@ import 'package:http/http.dart' as http;
 
 Future<List<Storage_form>> fetchStorage() async {
   var headers = {
-    'Authorization': 'Bearer Usertoken', //수정할 것
+    'Authorization':
+        'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IjEyMyIsImV4cCI6MTcyMzExMTc2OX0.PtU9eUoXtngMStHVbFgdl14uFZfrf1_bQAbf-NB2sWw',
     'Content-Type': 'application/json; charset=UTF-8',
   };
 
@@ -33,32 +34,23 @@ Future<List<Storage_form>> fetchStorage() async {
 
 class Storage_form {
   final String id;
-  final String uid;
+  final String address;
   final String name;
-  final DateTime creacted_date;
-  final DateTime updated_date;
   final image;
-  final List waypoints;
 
   const Storage_form({
     required this.id,
-    required this.uid,
+    required this.address,
     required this.name,
-    required this.creacted_date,
-    required this.updated_date,
-    required this.waypoints,
     required this.image,
   });
 
   factory Storage_form.fromJson(dynamic json) {
     return Storage_form(
       id: json['price'],
-      uid: json['uid'],
+      address: json['address'],
       name: json['name'],
-      creacted_date: json['creacted_date'],
-      updated_date: json['updated_date'],
       image: json['image'],
-      waypoints: json['waypoints'],
     );
   }
 }
@@ -168,7 +160,8 @@ class _StorageScreenState extends State<StorageScreen> {
                                     context,
                                     Storage.id,
                                     Storage.name,
-                                    Storage.waypoints[0]["address"],
+                                    Storage.address,
+                                    Storage.image,
                                     _isEditing);
                               },
                               childCount: snapshot.data!.length,
@@ -201,8 +194,8 @@ class _StorageScreenState extends State<StorageScreen> {
   }
 }
 
-Container storage(
-    context, String id, String rootname, String address, bool isEditing) {
+Container storage(context, String id, String rootname, String address, image,
+    bool isEditing) {
   return Container(
     child: Stack(
       children: [
@@ -234,6 +227,7 @@ Container storage(
                   ).createShader(bounds),
                   blendMode: BlendMode.darken,
                   child: Image.asset(
+                    //network로 교체할 것
                     "assets/images/sample1.png",
                     fit: BoxFit.cover,
                   ),
