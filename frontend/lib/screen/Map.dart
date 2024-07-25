@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:frontend/components/User.dart';
 import 'package:frontend/components/app_theme.dart';
+import 'package:frontend/screen/Mypage.dart';
 import 'package:frontend/screen/chat.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -18,6 +20,7 @@ class _MapScreenState extends State<MapScreen> {
   DateTime selectedDate = DateTime.now();
   bool isExpanded = false;
   bool _myLocationEnabled = false;
+  late User user;
   final LatLng _center = const LatLng(37.6098, 127.0737);
   final List<LatLng> polylineCoordinates = [];
   final Set<Polyline> _polylines = {};
@@ -48,17 +51,18 @@ class _MapScreenState extends State<MapScreen> {
     mapController.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
     setState(() {
       _myLocationEnabled = true;
+      user = User(lat: position.latitude, lot: position.longitude);
     });
   }
 
   Future<void> _addRoute() async {
-    final startLat = 37.6098;
-    final startLng = 127.0737;
-    final endLat = 37.5665; // Destination latitude
-    final endLng = 126.9780; // Destination longitude
-    final apiKey = 'AIzaSyD-rsNPFz79dDdN00dd-IQTXgppFHjp3N8';
+    const startLat = 37.6098;
+    const startLng = 127.0737;
+    const endLat = 37.5665; // Destination latitude
+    const endLng = 126.9780; // Destination longitude
+    const apiKey = 'AIzaSyD-rsNPFz79dDdN00dd-IQTXgppFHjp3N8';
 
-    final url =
+    const url =
         'https://maps.googleapis.com/maps/api/directions/json?origin=$startLat,$startLng&destination=$endLat,$endLng&key=$apiKey';
     final response = await http.get(Uri.parse(url));
     final data = json.decode(response.body);
@@ -69,7 +73,7 @@ class _MapScreenState extends State<MapScreen> {
       setState(() {
         polylineCoordinates.addAll(result);
         _polylines.add(Polyline(
-          polylineId: PolylineId('route'),
+          polylineId: const PolylineId('route'),
           points: polylineCoordinates,
           color: Colors.blue,
           width: 5,
@@ -161,11 +165,11 @@ class _MapScreenState extends State<MapScreen> {
                                       color: Colors.grey.withOpacity(0.5),
                                       spreadRadius: 2,
                                       blurRadius: 5,
-                                      offset: Offset(0, 10)),
+                                      offset: const Offset(0, 10)),
                                 ],
                               ),
                               child: Container(
-                                margin: EdgeInsets.all(8),
+                                margin: const EdgeInsets.all(8),
                                 child: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
@@ -183,12 +187,14 @@ class _MapScreenState extends State<MapScreen> {
                                                   context,
                                                   MaterialPageRoute(
                                                       builder: (context) =>
-                                                          const Chat()));
+                                                          Chat(
+                                                            userdata: user,
+                                                          )));
                                             },
                                             icon: const Icon(Icons.search),
                                             color: Colors.black,
                                           ),
-                                          Text(
+                                          const Text(
                                             "AI",
                                             style: TextStyle(
                                                 fontFamily: "Hanbit",
@@ -203,7 +209,7 @@ class _MapScreenState extends State<MapScreen> {
                                             icon: const Icon(Icons.person),
                                             color: Colors.black,
                                           ),
-                                          Text(
+                                          const Text(
                                             "MyPage",
                                             style: TextStyle(
                                                 fontFamily: "Hanbit",
@@ -220,7 +226,7 @@ class _MapScreenState extends State<MapScreen> {
                                             icon: const Icon(Icons.stop),
                                             color: Colors.red,
                                           ),
-                                          Text(
+                                          const Text(
                                             "stop",
                                             style: TextStyle(
                                                 fontFamily: "Hanbit",

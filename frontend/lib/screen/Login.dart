@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:frontend/components/server.dart';
 import 'package:frontend/screen/Start.dart';
 import 'Signup.dart';
 import 'package:frontend/components/custom_text_form_field.dart';
@@ -17,7 +18,7 @@ class Login extends StatefulWidget {
 
 Future<String> postRespons(
     BuildContext context, Map<String, String> userData) async {
-  var url = "http://10.30.117.40:5000/";
+  var url = "$serverUrl/login";
   final response = await http.post(
     Uri.parse(url),
     headers: <String, String>{},
@@ -42,7 +43,7 @@ Future<String> postRespons(
 class _LoginState extends State<Login> {
   TextEditingController ID = TextEditingController();
   TextEditingController PASSWORD = TextEditingController();
-  var url = Uri.parse("http://10.30.117.40:5000/login");
+  var url = Uri.parse("$serverUrl/login");
 
   final _formkey = GlobalKey<FormState>();
   @override

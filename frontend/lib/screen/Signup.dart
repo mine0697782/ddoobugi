@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:frontend/components/custom_text_form_field.dart';
+import 'package:frontend/components/server.dart';
 import 'package:frontend/components/size.dart';
 import 'package:frontend/screen/Login.dart';
 import 'package:http/http.dart' as http;
@@ -15,7 +16,7 @@ class Signup extends StatefulWidget {
 
 Future<String> fetchInfo(
     BuildContext context, Map<String, String> userData) async {
-  var url = 'http://10.30.117.40:5000/';
+  var url = "$serverUrl/register";
   //서버에 보내는 폼
   final response = await http.post(
     Uri.parse(url),
@@ -125,7 +126,9 @@ class _SignupState extends State<Signup> {
                               'password': PASSWORD.text,
                               'name': ID.text,
                             };
+                            print("회원가입");
                             fetchInfo(context, userData).then((data) {
+                              print("데이터 통신");
                               if (data == "success") {
                                 Navigator.pushReplacement(
                                   context,
