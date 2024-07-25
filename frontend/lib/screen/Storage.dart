@@ -19,8 +19,9 @@ Future<List<Storage_form>> fetchStorage() async {
   );
 
   if (response.statusCode == 200) {
-    Iterable storeList =
-        jsonDecode(utf8.decode(response.bodyBytes)); //한국어 깨지는 걸 방지하기 위함
+    var jsonResponse = jsonDecode(utf8.decode(response.bodyBytes));
+    // 응답에서 'routes' 필드를 추출
+    var storeList = jsonResponse['routes'] as List;
     List<Storage_form> stores =
         storeList.map((storeJson) => Storage_form.fromJson(storeJson)).toList();
     log("/routes 불러옴");
@@ -36,7 +37,7 @@ class Storage_form {
   final String id;
   final String address;
   final String name;
-  final image;
+  final String image;
 
   const Storage_form({
     required this.id,
@@ -45,12 +46,15 @@ class Storage_form {
     required this.image,
   });
 
-  factory Storage_form.fromJson(dynamic json) {
+  factory Storage_form.fromJson(Map<String, dynamic> json) {
     return Storage_form(
-      id: json['price'],
-      address: json['address'],
-      name: json['name'],
-      image: json['image'],
+      id: json['id'] ?? '',
+      address: json['address'] ?? '',
+      name: json['name'] ?? '',
+      image: json['image'] ??
+          Image.asset(
+            'assets/images/sample1.png',
+          ),
     );
   }
 }
@@ -75,61 +79,52 @@ class _StorageScreenState extends State<StorageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Image.asset(
-          'assets/images/logo.png',
-          scale: 6,
+        appBar: AppBar(
+          title: Image.asset(
+            'assets/images/logo.png',
+          ),
+          backgroundColor: Colors.white,
+          shadowColor: Colors.grey,
+          actions: [
+            IconButton(
+              icon: Icon(_isEditing ? Icons.save : Icons.edit),
+              onPressed: () {
+                setState(() {
+                  _isEditing = !_isEditing; // 편집 모드 전환
+                });
+              },
+            ),
+          ],
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(2.0),
+            child: Divider(
+              height: 0.8,
+              color: Colors.grey.withOpacity(0.5),
+            ),
+          ),
         ),
         backgroundColor: Colors.white,
-        shadowColor: Colors.grey,
-        actions: [
-          IconButton(
-            icon: Icon(_isEditing ? Icons.save : Icons.edit),
-            onPressed: () {
-              setState(() {
-                _isEditing = !_isEditing; // 편집 모드 전환
-              });
-            },
-          ),
-        ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(2.0),
-          child: Divider(
-            height: 0.8,
-            color: Colors.grey.withOpacity(0.5),
-          ),
-        ),
-      ),
-      backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          Container(
-            height: 600,
-            child: FutureBuilder<List<Storage_form>>(
-              future: futureStorage,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return Column(
-                    children: [
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Center(
-                        child: Text(
-                          '데이터가 존재하지 않습니다. 잠시 후 시도해주십시오',
-                          style: TextStyle(
-                              fontFamily: "bm",
-                              fontSize: 20,
-                              color: Colors.grey),
+        body: Column(
+          children: [
+            Container(
+              height: 600,
+              child: FutureBuilder<List<Storage_form>>(
+                future: futureStorage,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: Container(
+                        width: 50.0,
+                        height: 50.0,
+                        child: const CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.blueAccent),
+                          strokeWidth: 6.0,
                         ),
                       ),
-                    ],
-                  );
-                } else if (snapshot.hasData) {
-                  if (snapshot.data!.isEmpty) {
-                    return Column(
+                    );
+                  } else if (snapshot.hasError) {
+                    return const Column(
                       children: [
                         SizedBox(
                           height: 20,
@@ -145,52 +140,53 @@ class _StorageScreenState extends State<StorageScreen> {
                         ),
                       ],
                     );
-                  } else {
-                    return Container(
-                      alignment: Alignment.centerRight,
-                      padding: const EdgeInsets.all(20),
-                      height: 195,
-                      child: CustomScrollView(
-                        slivers: <Widget>[
-                          SliverGrid(
-                            delegate: SliverChildBuilderDelegate(
-                              (BuildContext context, int idx) {
-                                final Storage = snapshot.data![idx];
-                                return storage(
-                                    context,
-                                    Storage.id,
-                                    Storage.name,
-                                    Storage.address,
-                                    Storage.image,
-                                    _isEditing);
-                              },
-                              childCount: snapshot.data!.length,
-                            ),
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                              childAspectRatio: 2 / 3,
+                  } else if (snapshot.hasData) {
+                    if (snapshot.data!.isEmpty) {
+                      return const Column(
+                        children: [
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Center(
+                            child: Text(
+                              '데이터가 존재하지 않습니다. 잠시 후 시도해주십시오',
+                              style: TextStyle(
+                                  fontFamily: "bm",
+                                  fontSize: 20,
+                                  color: Colors.grey),
                             ),
                           ),
                         ],
+                      );
+                    } else {
+                      return ListView(
+                        padding: const EdgeInsets.all(8),
+                        children: snapshot.data!.map((storageData) {
+                          return storage(
+                            context,
+                            storageData.id,
+                            storageData.name,
+                            storageData.address,
+                            storageData.image,
+                            _isEditing,
+                          );
+                        }).toList(),
+                      );
+                    }
+                  } else {
+                    return const Center(
+                      child: Text(
+                        '데이터가 존재하지 않습니다. 잠시 후 시도해주십시오',
+                        style: TextStyle(
+                            fontFamily: "bm", fontSize: 20, color: Colors.grey),
                       ),
                     );
                   }
-                } else {
-                  return Center(
-                    child: Text(
-                      '데이터가 존재하지 않습니다. 잠시 후 시도해주십시오',
-                      style: TextStyle(
-                          fontFamily: "bm", fontSize: 20, color: Colors.grey),
-                    ),
-                  );
-                }
-              },
+                },
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ));
   }
 }
 
@@ -212,7 +208,9 @@ Container storage(context, String id, String rootname, String address, image,
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const StorageView()));
+                        builder: (context) => StorageView(
+                              id: id,
+                            )));
               },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
@@ -245,7 +243,7 @@ Container storage(context, String id, String rootname, String address, image,
             children: [
               Text(
                 rootname,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: "Hanbit",
                   fontSize: 28,
                   color: Colors.white,
@@ -253,7 +251,7 @@ Container storage(context, String id, String rootname, String address, image,
               ),
               Text(
                 address,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: "Hanbit",
                   fontSize: 18,
                   color: Colors.white,
