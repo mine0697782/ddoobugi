@@ -5,6 +5,7 @@ from werkzeug.utils import safe_join
 from pymongo import MongoClient
 import jwt
 import datetime
+from datetime import timezone
 import hashlib
 from .services import search_nearby_places, get_place_details, summarize_places_with_gpt
 from .utils import *
@@ -53,10 +54,11 @@ def login():
 
     print("request json : ",end="")
     print(request.get_json())
-    print("request data : ", end="")
-    print(request.get_data())
-    print("request form : ", request.form)
-    print("request args : ", request.args)
+    # print("request data : ", end="")
+    # print(request.get_data())
+    # print("request form : ", request.form)
+    # print("request args : ", request.args)
+    # print(request.he)
 
     email = request.json["email"]
     password = request.json["password"]
@@ -104,13 +106,14 @@ def search():
     
     result = get_bearer_token(auth_header)
     user = decode_token(result)
-    # print("user : ", user)
+    print("user email : ", user["email"])
+    print("user name : ", user["name"])
     # print("result : ", result)
 
     # 루트 처음 시작 시 rid 없음 / 새 루트 생성
     if (rid == "" or rid == None): 
         print("새 루트 생성")
-        now_utc = datetime.now(timezone.utc)
+        now_utc = datetime.datetime.now(timezone.utc)
         new_route = {
             "uid" : str(user["_id"]),
             "name" : "new route",
@@ -202,6 +205,8 @@ def search():
 def select():
     print("/chat/select")
     auth_header = request.headers.get('Authorization', None)
+    user = decode_token(get_bearer_token(auth_header))
+    print("user email : ", user["email"])
     try :
         rid = request.json["rid"]
         pid = request.json["pid"]
@@ -214,7 +219,7 @@ def select():
         return {"result" : "fail", "msg" : "invalid token"}
 
     # route["_id"] = type(route["_id"])
-    print("===============")
+    # print("===============")
     return (jsonify({"result" : "success"}))
 
 @main.route("/token")
