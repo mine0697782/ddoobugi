@@ -1,9 +1,19 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:frontend/components/User.dart';
 import 'package:frontend/components/app_theme.dart';
-import 'package:frontend/components/dialog.dart';
+import 'package:frontend/components/chat_class.dart';
+import 'package:frontend/components/chat_message_type.dart';
+import 'package:frontend/components/server.dart';
+import 'package:http/http.dart' as http;
 
 class Chat extends StatefulWidget {
-  const Chat({super.key});
+  User? userdata;
+  Chat({
+    this.userdata,
+    super.key,
+  });
 
   @override
   State<Chat> createState() => _ChatState();
@@ -11,6 +21,50 @@ class Chat extends StatefulWidget {
 
 class _ChatState extends State<Chat> {
   TextEditingController chat_controller = TextEditingController();
+  final scrollController = ScrollController();
+  List<ChatClass> CHAT = [];
+
+  late User userdata;
+
+  @override
+  void initState() {
+    super.initState();
+    userdata = widget.userdata!;
+  }
+
+  Future<void> sendData(BuildContext context, Map<String, String> send) async {
+    var url = "$serverUrl/chat/select";
+    final response = await http.post(Uri.parse(url),
+        headers: <String, String>{}, body: jsonEncode(send));
+  }
+
+  Future<void> onFieldSubmitted(
+      BuildContext context, Map<String, dynamic> chatting) async {
+    _sendMessage();
+    var url = "$serverUrl/chat/search";
+    final response = await http.post(Uri.parse(url),
+        headers: <String, String>{},
+        body: jsonEncode(chatting)); //string으로 위도 경도가 자동으로 바뀌나?? 오류나면 확인
+    scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+    try {
+      if (response.statusCode == 200) {
+        Map<String, dynamic> responseData =
+            jsonDecode(utf8.decode(response.bodyBytes));
+
+        CHAT = [
+          ...CHAT,
+          ChatClass.sent(message: responseData, type: ChatMessageType.received)
+        ];
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   var recommend = [
     "다음 웨이포인트 이어가기",
     "주변 화장실 알려줘",
@@ -18,11 +72,14 @@ class _ChatState extends State<Chat> {
     "공원 찾아줘",
     "가까운 편의점 경로 알려줘"
   ];
-  String InputChat = "";
 
   void _sendMessage() {
     if (chat_controller.text.isNotEmpty) {
-      //정보 보내기
+      CHAT = [
+        ...CHAT,
+        ChatClass.sent(
+            message: chat_controller.text, type: ChatMessageType.sent)
+      ];
       chat_controller.clear();
     }
   }
@@ -39,9 +96,113 @@ class _ChatState extends State<Chat> {
           resizeToAvoidBottomInset: true,
           body: SingleChildScrollView(
             child: Container(
-              child: const Column(
+              child: Column(
                 children: <Widget>[
-                  //채팅창 구현
+                  Align(
+                      alignment: Alignment.topCenter,
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        reverse: true,
+                        itemBuilder: (context, index) {
+                          ChatClass currentChat = CHAT[index];
+                          List<Map<String, dynamic>> places =
+                              currentChat.message["places"];
+                          if (currentChat.type == ChatMessageType.sent) {
+                            return Container(
+                              height: 100,
+                              width: size.width * 0.6,
+                              decoration: const BoxDecoration(
+                                  color: Color.fromARGB(255, 61, 24, 24)),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    currentChat.message,
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            );
+                          } else if (currentChat.type ==
+                              ChatMessageType.received) {
+                            return Container(
+                              height: size.height * 0.5,
+                              width: size.width * 0.6,
+                              decoration: const BoxDecoration(
+                                color: Color(0xFFD9D9D9),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    "다음은 해당 위치에서 갈 수 있는 곳을 추천한 결과입니다.눌러서 세부 정보를 확인하세요",
+                                    style: TextStyle(color: Colors.black),
+                                  ),
+                                  ListView.builder(
+                                      itemBuilder: (context, index_) {
+                                    double fontSize = 10;
+                                    Map<String, dynamic> currentPlace =
+                                        places[index_];
+                                    return GestureDetector(
+                                      onTap: () {
+                                        Map<String, String> request = {
+                                          "token": "",
+                                          "chat": chat_controller.text,
+                                          "rid": "",
+                                          "place_id": currentPlace["place_id"],
+                                        };
+                                        sendData(context, request);
+                                      },
+                                      child: Container(
+                                          width: size.width * 0.5,
+                                          height: size.height * 0.35,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          child: Column(children: [
+                                            Text(currentPlace["place_name"],
+                                                style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: fontSize + 5)),
+                                            Text("점수: ${currentPlace["score"]}",
+                                                style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: fontSize)),
+                                            Text(
+                                                "거리: ${currentPlace["distance"]}",
+                                                style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: fontSize)),
+                                            Text(
+                                                "주소: ${currentPlace["address"]}",
+                                                style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: fontSize)),
+                                            Text(
+                                                "이유: ${currentPlace["reason"]}",
+                                                style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: fontSize)),
+                                            Text(
+                                                "요약: ${currentPlace["summary"]}",
+                                                style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: fontSize))
+                                          ])),
+                                    );
+                                  })
+                                ],
+                              ),
+                            );
+                          }
+                          return null;
+                        },
+                        controller: scrollController,
+                      ))
                 ],
               ),
             ),
@@ -83,10 +244,16 @@ class _ChatState extends State<Chat> {
                   ),
                   IconButton(
                       onPressed: () {
-                        setState(() {
-                          InputChat = chat_controller.text;
-                          _sendMessage();
-                        });
+                        //chatting
+                        Map<String, dynamic> chatting = {
+                          "token": "",
+                          "chat": chat_controller.text,
+                          "lat": userdata.lat,
+                          "lon": userdata.lot,
+                          "rid": "",
+                          "address": ""
+                        };
+                        onFieldSubmitted(context, chatting);
                       },
                       icon: const Icon(
                         Icons.send,
@@ -118,8 +285,7 @@ class _ChatState extends State<Chat> {
             child: TextButton(
               onPressed: () {
                 setState(() {
-                  InputChat = recommend[index];
-                  chat_controller.text = InputChat;
+                  chat_controller.text = recommend[index];
                 });
               },
               style: TextButton.styleFrom(
