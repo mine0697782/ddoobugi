@@ -6,8 +6,11 @@ from pymongo import MongoClient
 import jwt
 import datetime
 import hashlib
+from .services import search_nearby_places, get_place_details, summarize_places_with_gpt
 
 import os
+
+exclude_place_ids = []
 
 main = Blueprint('main', __name__)
 
@@ -21,19 +24,6 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 def index():
     return "<h1>Hello, World!</h1>"
 
-@main.route('/users')
-def get_users():
-    users = db_user.find({})
-    res = []
-    for u in users:
-        res.append(u["name"])
-        print(u)
-    return jsonify({"result" : res})
-
-@main.route('/chat')
-def chat():
-    return "chat"
-
 @main.post('/register')
 def register():
     email = request.json["email"]
@@ -46,7 +36,7 @@ def register():
         return jsonify({"result" : "email already exist"})
     else:
         db_user.insert_one({"email": email, "password": pw_hash, "name": name})
-    return jsonify({"result": "success"})
+        return jsonify({"result": "success"})
 
 
 @main.post('/login')
@@ -67,38 +57,49 @@ def login():
 
         return jsonify({"result" : "success", "token" : token})
     else :
-        return jsonify({"result" : "fail", "msg" : "password is not correct!"})
+        return jsonify({"result" : "fail", "msg" : "password incorrect!"})
 
-@main.route('/name')
-def api_valid():
-    # token_receive = request.cookies.get("mytoken")
-    try :
-        token_receive = request.json["token"]
-        print("header: ", request.headers)
-        print("toekn : ", token_receive)
-    except KeyError:
-        print("token is not exist")
-        return "token is not exist"
-    except Exception as e:
-        print("error : ", e)
-        return ("error : ", e)
+@main.route('/chat')
+def chat():
+    token = request.json["token"]
+    user_info = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+    user = db_user.find_one({"email": user_info["email"]})
+    print(type(user))
+    print(user)
+    return "chat"
+
+# @main.route('/name')
+# def api_valid():
+#     # token_receive = request.cookies.get("mytoken")
+#     try :
+#         token_receive = request.json["token"]
+#         print("header: ", request.headers)
+#         print("toekn : ", token_receive)
+#     except KeyError:
+#         print("token is not exist")
+#         return "token is not exist"
+#     except Exception as e:
+#         print("error : ", e)
+#         return ("error : ", e)
         
 
-    try:
-        payload = jwt.decode(token_receive, SECRET_KEY, algorithms=["HS256"])
-        print(payload)
+    # try:
+    #     payload = jwt.decode(token_receive, SECRET_KEY, algorithms=["HS256"])
+    #     print(payload)
 
-        userinfo = db_user.find_one({"email": payload["email"]})
-        return jsonify({"result" : "success", "name" : userinfo["name"]})
-    except jwt.ExpiredSignatureError:
-        return jsonify({"result" : "fail", "msg" : "login expired"})
-    except jwt.exceptions.DecodeError:
-        return jsonify({"result" : "fail", "msg" : "login info is not valid"})
+    #     userinfo = db_user.find_one({"email": payload["email"]})
+    #     return jsonify({"result" : "success", "name" : userinfo["name"]})
+    # except jwt.ExpiredSignatureError:
+    #     return jsonify({"result" : "fail", "msg" : "login expired"})
+    # except jwt.exceptions.DecodeError:
+    #     return jsonify({"result" : "fail", "msg" : "login info is not valid"})
 
-@main.route('/list')
-def get_list():
-    users = db_user.find_one()
-    print(users)
-    # for u in users:
-        # print(u)
-    return 'list'
+
+# @main.route('/users')
+# def get_users():
+#     users = db_user.find({})
+#     res = []
+#     for u in users:
+#         res.append(u["name"])
+#         print(u)
+#     return jsonify({"result" : res})
