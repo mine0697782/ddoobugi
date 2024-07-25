@@ -629,3 +629,6 @@ buildscripts/antithesis/base_images/workload/tsan.suppressions
 
 # default download location for resmoke core-analyzer
 core-analyzer
+
+*.pem
+*.out
