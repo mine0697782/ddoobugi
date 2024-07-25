@@ -19,8 +19,9 @@ Future<List<Storage_form>> fetchStorage() async {
   );
 
   if (response.statusCode == 200) {
-    Iterable storeList =
-        jsonDecode(utf8.decode(response.bodyBytes)); //한국어 깨지는 걸 방지하기 위함
+    var jsonResponse = jsonDecode(utf8.decode(response.bodyBytes));
+    // 응답에서 'routes' 필드를 추출
+    var storeList = jsonResponse['routes'] as List;
     List<Storage_form> stores =
         storeList.map((storeJson) => Storage_form.fromJson(storeJson)).toList();
     log("/routes 불러옴");
@@ -36,7 +37,7 @@ class Storage_form {
   final String id;
   final String address;
   final String name;
-  final image;
+  final String image;
 
   const Storage_form({
     required this.id,
@@ -45,12 +46,15 @@ class Storage_form {
     required this.image,
   });
 
-  factory Storage_form.fromJson(dynamic json) {
+  factory Storage_form.fromJson(Map<String, dynamic> json) {
     return Storage_form(
-      id: json['price'],
-      address: json['address'],
-      name: json['name'],
-      image: json['image'],
+      id: json['id'] ?? '',
+      address: json['address'] ?? '',
+      name: json['name'] ?? '',
+      image: json['image'] ??
+          Image.asset(
+            'assets/images/sample1.png',
+          ),
     );
   }
 }
@@ -78,7 +82,6 @@ class _StorageScreenState extends State<StorageScreen> {
         appBar: AppBar(
           title: Image.asset(
             'assets/images/logo.png',
-            scale: 6,
           ),
           backgroundColor: Colors.white,
           shadowColor: Colors.grey,
@@ -156,34 +159,18 @@ class _StorageScreenState extends State<StorageScreen> {
                         ],
                       );
                     } else {
-                      return Container(
-                        alignment: Alignment.centerRight,
-                        padding: const EdgeInsets.all(20),
-                        height: 195,
-                        child: CustomScrollView(
-                          slivers: <Widget>[
-                            SliverGrid(
-                              delegate: SliverChildBuilderDelegate(
-                                (BuildContext context, int idx) {
-                                  final Storage = snapshot.data![idx];
-                                  return storage(
-                                      context,
-                                      Storage.id,
-                                      Storage.name,
-                                      Storage.address,
-                                      Storage.image,
-                                      _isEditing);
-                                },
-                                childCount: snapshot.data!.length,
-                              ),
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3,
-                                childAspectRatio: 2 / 3,
-                              ),
-                            ),
-                          ],
-                        ),
+                      return ListView(
+                        padding: const EdgeInsets.all(8),
+                        children: snapshot.data!.map((storageData) {
+                          return storage(
+                            context,
+                            storageData.id,
+                            storageData.name,
+                            storageData.address,
+                            storageData.image,
+                            _isEditing,
+                          );
+                        }).toList(),
                       );
                     }
                   } else {
@@ -221,7 +208,9 @@ Container storage(context, String id, String rootname, String address, image,
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const StorageView()));
+                        builder: (context) => StorageView(
+                              id: id,
+                            )));
               },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
