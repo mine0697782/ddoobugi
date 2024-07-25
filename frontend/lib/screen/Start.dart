@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/components/User.dart';
-import 'package:frontend/screen/Map.dart'; // 올바른 경로인지 확인하세요.
+import 'package:frontend/screen/Map.dart';
 import 'package:frontend/screen/Storage.dart';
 import 'package:permission_handler/permission_handler.dart';
 

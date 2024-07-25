@@ -114,24 +114,18 @@ class _StorageViewState extends State<StorageView> {
 
     if (distance < 10) {
       // 10 미터 이내
-      _showFollowDialog(
-        context,
-        _titleController.text,
-        '주소 예시', // 실제 주소 데이터 사용
-        '설명은 여기에 추가하세요.', // 설명
-      );
+      _showFollowDialog(context, _titleController.text, startLocation);
     } else {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => RootviewScreen(), // 이동할 페이지로 교체
+          builder: (context) => RootviewScreen(),
         ),
       );
     }
   }
 
-  void _showFollowDialog(
-      BuildContext context, String title, String address, String description) {
+  void _showFollowDialog(BuildContext context, String title, LatLng location) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -139,6 +133,7 @@ class _StorageViewState extends State<StorageView> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
+          backgroundColor: Colors.white,
           child: SizedBox(
             width: 300,
             child: Stack(
@@ -160,17 +155,29 @@ class _StorageViewState extends State<StorageView> {
                         style:
                             const TextStyle(fontFamily: "Hanbit", fontSize: 15),
                       ),
+
                       const SizedBox(height: 20),
-                      Text(
-                        address,
-                        style:
-                            const TextStyle(fontFamily: "Hanbit", fontSize: 15),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        description,
-                        style:
-                            const TextStyle(fontFamily: "Hanbit", fontSize: 15),
+                      // 지도
+                      SizedBox(
+                        width: double.infinity,
+                        height: 200, // 높이를 조절할 수 있습니다
+                        child: GoogleMap(
+                          initialCameraPosition: CameraPosition(
+                            target: location,
+                            zoom: 14,
+                          ),
+                          markers: {
+                            Marker(
+                              markerId: MarkerId('location_marker'),
+                              position: location,
+                              infoWindow: InfoWindow(
+                                title: title,
+                                snippet: title,
+                              ),
+                            ),
+                          },
+                          mapType: MapType.normal,
+                        ),
                       ),
                       const SizedBox(height: 20),
                       // Buttons
@@ -295,10 +302,8 @@ class _StorageViewState extends State<StorageView> {
             _markers = places.map((place) {
               final placeId = place['place_id'];
               final placeName = place['이름'];
-              final placeLat =
-                  place['lat'] ?? _mapCenter.latitude; // 데이터에 lat이 없을 경우 기본값 사용
-              final placeLon = place['lon'] ??
-                  _mapCenter.longitude; // 데이터에 lon이 없을 경우 기본값 사용
+              final placeLat = place['lat'] ?? _mapCenter.latitude;
+              final placeLon = place['lon'] ?? _mapCenter.longitude;
 
               return Marker(
                 markerId: MarkerId(placeId),
@@ -325,7 +330,7 @@ class _StorageViewState extends State<StorageView> {
                             height: 200,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
-                              return Center(
+                              return const Center(
                                 child: Icon(Icons.error, color: Colors.red),
                               );
                             },
