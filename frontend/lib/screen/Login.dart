@@ -16,36 +16,45 @@ class Login extends StatefulWidget {
   State<Login> createState() => _LoginState();
 }
 
-Future<String> postRespons(
-    BuildContext context, Map<String, String> userData) async {
-  var url = "$serverUrl/login";
-  final response = await http.post(
-    Uri.parse(url),
-    headers: <String, String>{},
-    body: jsonEncode(userData),
-  );
-  try {
-    if (response.statusCode == 200) {
-      Map<String, dynamic> responseData =
-          jsonDecode(utf8.decode(response.bodyBytes));
-
-      String token = responseData["token"];
-      User(Usertoken: token);
-      return token;
-    } else {
-      return "fail";
-    }
-  } catch (e) {
-    rethrow;
-  }
-}
-
 class _LoginState extends State<Login> {
   TextEditingController ID = TextEditingController();
   TextEditingController PASSWORD = TextEditingController();
   var url = Uri.parse("$serverUrl/login");
-
+  late User userdata;
   final _formkey = GlobalKey<FormState>();
+
+  Future<String> postRespons(
+      BuildContext context, Map<String, String> userData) async {
+    var url = "$serverUrl/login";
+    final response = await http.post(
+      Uri.parse(url),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(userData),
+    );
+    try {
+      print(response.body);
+      print("${response.statusCode}");
+      print(
+          "--------------------------------------------------------------------------------------------------");
+      if (response.statusCode == 200) {
+        Map<String, dynamic> responseData =
+            jsonDecode(utf8.decode(response.bodyBytes));
+
+        String token = responseData["token"];
+        userdata = User(Usertoken: token);
+        return token;
+      } else {
+        print(
+            "0000000000000000000000000000000000000000000000000000000000000000000000000000");
+        return "fail";
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
@@ -105,12 +114,14 @@ class _LoginState extends State<Login> {
                             'password': PASSWORD.text,
                           };
                           postRespons(context, LoginData).then((token) {
-                            if (token.isNotEmpty) {
+                            setState(() {});
+                            if (token != "fail") {
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                          const StartScreen()));
+                                      builder: (context) => StartScreen(
+                                            userdata: userdata,
+                                          )));
                               print("로그인 완료");
                             } else {
                               print("로그인 실패");

@@ -1,24 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/components/User.dart';
 import 'package:frontend/screen/Map.dart'; // 올바른 경로인지 확인하세요.
 import 'package:frontend/screen/Storage.dart';
-import 'package:frontend/screen/StorageView.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class StartScreen extends StatelessWidget {
-  const StartScreen({Key? key}) : super(key: key);
-
+  final User userdata;
+  const StartScreen({super.key, required this.userdata});
   Future<void> requestLocationPermission(BuildContext context) async {
     var status = await Permission.location.request();
     if (status.isGranted) {
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => const MapScreen()), // const 키워드 사용
+            builder: (context) => MapScreen(
+                  userdata: userdata,
+                )), // const 키워드 사용
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('위치 권한이 필요합니다.'),
+        const SnackBar(
+          content: Text('위치 권한이 필요합니다.'),
         ),
       );
     }
@@ -84,8 +86,10 @@ class StartScreen extends StatelessWidget {
                 shadowColor: Colors.grey,
               ),
               onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => StorageScreen()));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const StorageScreen()));
               },
               child: const Text(
                 "이전 기록따라 움직이기",

@@ -9,8 +9,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 
 class MapScreen extends StatefulWidget {
-  const MapScreen({super.key});
-
+  MapScreen({super.key, this.userdata});
+  User? userdata;
   @override
   State<MapScreen> createState() => _MapScreenState();
 }
@@ -118,6 +118,7 @@ class _MapScreenState extends State<MapScreen> {
   @override
   void initState() {
     super.initState();
+    user = widget.userdata!;
     _currentLocation();
   }
 
