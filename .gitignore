@@ -4,6 +4,9 @@
 # Do not remove or rename entries in this file, only add new ones
 # See https://github.com/flutter/flutter/issues/128635 for more context.
 
+# 서버 주소 
+frontend/lib/components/server.dart
+
 # Miscellaneous
 *.class
 *.lock

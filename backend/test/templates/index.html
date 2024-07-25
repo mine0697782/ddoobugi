@@ -92,6 +92,8 @@
         }
     </style>
     <script>
+        let recommendations = [];
+
         function appendMessage(sender, text, onClick = null) {
             const chatContainer = document.getElementById('chat-container');
             const messageDiv = document.createElement('div');
@@ -144,7 +146,7 @@
                 .then(response => response.json())
                 .then(data => {
                     const results = data.results;
-                    const recommendations = data.recommendations;
+                    recommendations = data.recommendations;
 
                     const resultsContainer = document.getElementById('results-container');
                     resultsContainer.innerHTML = '';
@@ -165,13 +167,14 @@
 
                     recommendations.forEach((place, index) => {
                         const placeElement = `
-                            <h3>${index + 1}. ${place.name}</h3>
-                            <p><strong>Address:</strong> ${place.address}</p>
-                            <p><strong>Rating:</strong> ${place.rating}</p>
-                            <p><strong>User Ratings:</strong> ${place.user_ratings_total}</p>
-                            <p><strong>Open Now:</strong> ${place.open_now ? "Yes" : "No"}</p>
-                            <p><strong>Distance:</strong> ${place.distance.toFixed(2)} meters</p>
-                            <p><strong>소개:</strong> ${place.comment}</p>`;
+                            <div class="place-item">
+                                <h3>${index + 1}. ${place.name}</h3>
+                                <p><strong>Address:</strong> ${place.address}</p>
+                                <p><strong>Rating:</strong> ${place.rating}</p>
+                                <p><strong>User Ratings:</strong> ${place.user_ratings_total}</p>
+                                <p><strong>Open Now:</strong> ${place.open_now ? "Yes" : "No"}</p>
+                                <p><strong>Distance:</strong> ${place.distance.toFixed(2)} meters</p>
+                                <p><strong>소개:</strong> ${place.comment}</p>`;
 
                         appendMessage('bot', placeElement, () => showPlace(
                             place.name, 
@@ -222,7 +225,6 @@
                             <p><strong>Address:</strong> ${place.address}</p>
                             <p><strong>Distance:</strong> ${place.distance.toFixed(2)} meters</p>`;
 
-
                         appendMessage('bot', placeElement, () => showPlace(
                             place.name, 
                             place.address, 
@@ -236,6 +238,10 @@
                 });
             });
         }
+
+        function showSavedPlaces() {
+            window.location.href = '/show_saved_places';
+        }
     </script>
 </head>
 <body>
@@ -243,6 +249,7 @@
     <div id="quick-buttons">
         <button class="btn btn-secondary quick-button" onclick="searchRestroom()">화장실</button>
         <button class="btn btn-secondary quick-button" onclick="quickSearch('편의점')">편의점</button>
+        <button class="btn btn-secondary quick-button" onclick="showSavedPlaces()">저장된 장소 보기</button>
     </div>
     <div id="input-container">
         <input type="text" id="input_text" class="form-control" placeholder="Enter your message">

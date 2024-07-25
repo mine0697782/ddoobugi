@@ -127,18 +127,16 @@
                     const service = new google.maps.places.PlacesService(map);
                     service.getDetails({ placeId: results[0].place_id }, (place, status) => {
                         if (status === google.maps.places.PlacesServiceStatus.OK) {
-                            console.log('Place details:', place); // 콘솔에 place 객체 출력
                             if (place.photos && place.photos.length > 0) {
                                 const photoUrl = place.photos[0].getUrl({ maxWidth: 800 });
-                                console.log('Photo URL:', photoUrl); // 콘솔에 photoUrl 출력
                                 document.getElementById('place-photo').src = photoUrl;
                             }
                         } else {
-                            console.error('No photos available for this place.');
+                            console.error('Place details request failed due to ' + status);
                         }
                     });
                 } else {
-                    console.error('Place details request failed due to ' + status);
+                    alert('Geocode was not successful for the following reason: ' + status);
                 }
             });
 
@@ -190,6 +188,44 @@
                 }
             });
         }
+
+        function savePlace() {
+            const name = document.getElementById('place-name').innerText;
+            const address = document.getElementById('place-address').innerText.replace('Address: ', '');
+            const rating = parseFloat(document.getElementById('place-rating').innerText.replace('Rating: ', ''));
+            const userRatingsTotal = parseInt(document.getElementById('place-user-ratings-total').innerText.replace('User Ratings: ', ''));
+            const openNow = document.getElementById('place-open-now').innerText.replace('Open Now: ', '') === "Yes";
+            const distance = parseFloat(document.getElementById('place-distance').innerText.replace('Distance: ', '').replace(' meters', ''));
+            const comment = document.getElementById('place-comment').innerText.replace('소개: ', '');
+
+            const place = {
+                name,
+                address,
+                rating,
+                user_ratings_total: userRatingsTotal,
+                open_now: openNow,
+                distance,
+                comment,
+                lat: destinationLocation.lat(),
+                lng: destinationLocation.lng()
+            };
+
+            fetch('/save_place', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(place)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            });
+        }
+
+        function showSavedPlaces() {
+            window.location.href = '/show_saved_places';
+        }
     </script>
 </head>
 <body onload="initMap()">
@@ -204,6 +240,8 @@
         <p id="place-comment"></p>
         <button class="btn btn-primary" onclick="calculateAndDisplayRoute()">Get Directions</button>
         <button id="toggle-view-button" class="btn btn-secondary" onclick="toggleView()">로드뷰 보기</button>
+        <button class="btn btn-success" onclick="savePlace()">Save Place</button>
+        <button class="btn btn-secondary" onclick="showSavedPlaces()">저장된 장소 보기</button>
     </div>
     <div id="map"></div>
     <div id="street-view"></div>
