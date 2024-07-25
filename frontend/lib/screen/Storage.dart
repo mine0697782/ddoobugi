@@ -75,61 +75,53 @@ class _StorageScreenState extends State<StorageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Image.asset(
-          'assets/images/logo.png',
-          scale: 6,
+        appBar: AppBar(
+          title: Image.asset(
+            'assets/images/logo.png',
+            scale: 6,
+          ),
+          backgroundColor: Colors.white,
+          shadowColor: Colors.grey,
+          actions: [
+            IconButton(
+              icon: Icon(_isEditing ? Icons.save : Icons.edit),
+              onPressed: () {
+                setState(() {
+                  _isEditing = !_isEditing; // 편집 모드 전환
+                });
+              },
+            ),
+          ],
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(2.0),
+            child: Divider(
+              height: 0.8,
+              color: Colors.grey.withOpacity(0.5),
+            ),
+          ),
         ),
         backgroundColor: Colors.white,
-        shadowColor: Colors.grey,
-        actions: [
-          IconButton(
-            icon: Icon(_isEditing ? Icons.save : Icons.edit),
-            onPressed: () {
-              setState(() {
-                _isEditing = !_isEditing; // 편집 모드 전환
-              });
-            },
-          ),
-        ],
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(2.0),
-          child: Divider(
-            height: 0.8,
-            color: Colors.grey.withOpacity(0.5),
-          ),
-        ),
-      ),
-      backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          Container(
-            height: 600,
-            child: FutureBuilder<List<Storage_form>>(
-              future: futureStorage,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return Column(
-                    children: [
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Center(
-                        child: Text(
-                          '데이터가 존재하지 않습니다. 잠시 후 시도해주십시오',
-                          style: TextStyle(
-                              fontFamily: "bm",
-                              fontSize: 20,
-                              color: Colors.grey),
+        body: Column(
+          children: [
+            Container(
+              height: 600,
+              child: FutureBuilder<List<Storage_form>>(
+                future: futureStorage,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: Container(
+                        width: 50.0,
+                        height: 50.0,
+                        child: const CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.blueAccent),
+                          strokeWidth: 6.0,
                         ),
                       ),
-                    ],
-                  );
-                } else if (snapshot.hasData) {
-                  if (snapshot.data!.isEmpty) {
-                    return Column(
+                    );
+                  } else if (snapshot.hasError) {
+                    return const Column(
                       children: [
                         SizedBox(
                           height: 20,
@@ -145,52 +137,69 @@ class _StorageScreenState extends State<StorageScreen> {
                         ),
                       ],
                     );
-                  } else {
-                    return Container(
-                      alignment: Alignment.centerRight,
-                      padding: const EdgeInsets.all(20),
-                      height: 195,
-                      child: CustomScrollView(
-                        slivers: <Widget>[
-                          SliverGrid(
-                            delegate: SliverChildBuilderDelegate(
-                              (BuildContext context, int idx) {
-                                final Storage = snapshot.data![idx];
-                                return storage(
-                                    context,
-                                    Storage.id,
-                                    Storage.name,
-                                    Storage.address,
-                                    Storage.image,
-                                    _isEditing);
-                              },
-                              childCount: snapshot.data!.length,
-                            ),
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3,
-                              childAspectRatio: 2 / 3,
+                  } else if (snapshot.hasData) {
+                    if (snapshot.data!.isEmpty) {
+                      return const Column(
+                        children: [
+                          SizedBox(
+                            height: 20,
+                          ),
+                          Center(
+                            child: Text(
+                              '데이터가 존재하지 않습니다. 잠시 후 시도해주십시오',
+                              style: TextStyle(
+                                  fontFamily: "bm",
+                                  fontSize: 20,
+                                  color: Colors.grey),
                             ),
                           ),
                         ],
+                      );
+                    } else {
+                      return Container(
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.all(20),
+                        height: 195,
+                        child: CustomScrollView(
+                          slivers: <Widget>[
+                            SliverGrid(
+                              delegate: SliverChildBuilderDelegate(
+                                (BuildContext context, int idx) {
+                                  final Storage = snapshot.data![idx];
+                                  return storage(
+                                      context,
+                                      Storage.id,
+                                      Storage.name,
+                                      Storage.address,
+                                      Storage.image,
+                                      _isEditing);
+                                },
+                                childCount: snapshot.data!.length,
+                              ),
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 3,
+                                childAspectRatio: 2 / 3,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                  } else {
+                    return const Center(
+                      child: Text(
+                        '데이터가 존재하지 않습니다. 잠시 후 시도해주십시오',
+                        style: TextStyle(
+                            fontFamily: "bm", fontSize: 20, color: Colors.grey),
                       ),
                     );
                   }
-                } else {
-                  return Center(
-                    child: Text(
-                      '데이터가 존재하지 않습니다. 잠시 후 시도해주십시오',
-                      style: TextStyle(
-                          fontFamily: "bm", fontSize: 20, color: Colors.grey),
-                    ),
-                  );
-                }
-              },
+                },
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ));
   }
 }
 
@@ -245,7 +254,7 @@ Container storage(context, String id, String rootname, String address, image,
             children: [
               Text(
                 rootname,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: "Hanbit",
                   fontSize: 28,
                   color: Colors.white,
@@ -253,7 +262,7 @@ Container storage(context, String id, String rootname, String address, image,
               ),
               Text(
                 address,
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: "Hanbit",
                   fontSize: 18,
                   color: Colors.white,
