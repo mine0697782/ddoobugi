@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/components/User.dart';
 import 'package:frontend/screen/Start.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -13,7 +14,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-                builder: (context) => const StartScreen()), // const 키워드 사용
+                builder: (context) => StartScreen(
+                      userdata: User(
+                          Usertoken:
+                              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IjEyMyIsImV4cCI6MTcyMzExMTc2OX0.PtU9eUoXtngMStHVbFgdl14uFZfrf1_bQAbf-NB2sWw"),
+                    )), // const 키워드 사용
           );
         },
         child: Image.asset(
