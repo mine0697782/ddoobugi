@@ -120,6 +120,8 @@ def search():
             "created_date" : now_utc,
             "updated_date" : now_utc,
             "address" : addr,
+            "lat" : lat,
+            "lon" : lon,
             "image" : "",
             "waypoints" : [
 
@@ -213,12 +215,16 @@ def select():
         print("rid : ", rid)
         print("pid : ", pid)
         # user = decode_token(get_bearer_token(auth_header))
-        route = db_route.find_one({"_id" : ObjectId(str(rid))})
-        print(route)
+        # route = db_route.find_one({"_id" : ObjectId(str(rid))})
+        # print(route)
+        updated = db_route.find_one_and_update(
+                {"_id" : ObjectId(str(rid))},
+                {"$push" : {"waypoints" : pid}}
+                )
     except Exception as e:
         return {"result" : "fail", "msg" : "invalid token"}
-
-    # route["_id"] = type(route["_id"])
+    # updated = db_route.find_one({"_id" : ObjectId(str(rid))})
+    # print(updated)
     # print("===============")
     return (jsonify({"result" : "success"}))
 
@@ -240,7 +246,17 @@ def routes():
         }
         routes.append(data)
     print(routes)
-    return jsonify({"result" : "success", "routes" : routes})
+    return jsonify({"result" : "success", "data" : routes})
+
+@main.get("/routes/<rid>")
+def route_detail(rid):
+    print("/routes/rid")
+    print("rid : "+ str(rid))
+    route = db_route.find_one({"_id": ObjectId(str(rid))})
+    route.pop("_id")
+    route["id"] = rid
+    print(route)
+    return jsonify({"result" : "success", "data" : route})
 
 @main.route("/token")
 def token():
