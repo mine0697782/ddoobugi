@@ -210,7 +210,13 @@ class _MapScreenState extends State<MapScreen> {
                                       Column(
                                         children: [
                                           IconButton(
-                                            onPressed: () {},
+                                            onPressed: () {
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          const MyPageScreen()));
+                                            },
                                             icon: const Icon(Icons.person),
                                             color: Colors.black,
                                           ),
@@ -226,7 +232,7 @@ class _MapScreenState extends State<MapScreen> {
                                         children: [
                                           IconButton(
                                             onPressed: () {
-                                              statedialog(context, 70);
+                                              stopdialog(context, 70);
                                             },
                                             icon: const Icon(Icons.stop),
                                             color: Colors.red,
@@ -267,11 +273,12 @@ class _MapScreenState extends State<MapScreen> {
   }
 }
 
-void statedialog(BuildContext context, int state) {
+void stopdialog(BuildContext context, int state) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
       return Dialog(
+        backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
