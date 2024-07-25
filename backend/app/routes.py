@@ -222,6 +222,26 @@ def select():
     # print("===============")
     return (jsonify({"result" : "success"}))
 
+@main.get("/routes")
+def routes():
+    print("/routes")
+    auth_header = request.headers.get('Authorization', None)
+    user = decode_token(get_bearer_token(auth_header))
+    print("user email : ", user["email"])
+    
+    all_routes_cursor = db_route.find({"uid" : str(user["_id"])})
+    routes = []
+    for r in all_routes_cursor:
+        data = {
+            "id" : str(r["_id"]),
+            "name" : r["name"],
+            "address" : r["address"],
+            "image" : r["image"]
+        }
+        routes.append(data)
+    print(routes)
+    return jsonify({"result" : "success", "routes" : routes})
+
 @main.route("/token")
 def token():
     received = request.headers["Authorization"]
