@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:frontend/components/custom_text_form_field.dart';
+import 'package:frontend/components/server.dart';
 import 'package:frontend/components/size.dart';
 import 'package:frontend/screen/Login.dart';
 import 'package:http/http.dart' as http;
@@ -15,7 +16,7 @@ class Signup extends StatefulWidget {
 
 Future<String> fetchInfo(
     BuildContext context, Map<String, String> userData) async {
-  var url = 'http://10.30.117.40:5000/';
+  var url = '$serverUrl/register';
   //서버에 보내는 폼
   final response = await http.post(
     Uri.parse(url),
@@ -27,12 +28,17 @@ Future<String> fetchInfo(
 
   //응답에 따라 구분. 200코드면 잘 된 것.
   try {
+    print(
+        "---------------------------------------------------------------------------");
     if (response.statusCode == 200) {
       Map<String, dynamic> responseData =
           jsonDecode(utf8.decode(response.bodyBytes));
       String result = responseData['result'];
+      print(
+          "1111111111111111111111111111111111111111111111111111111111111111111111111111111111");
       return result;
     }
+    print("fail");
     return 'fail';
   } catch (e) {
     rethrow;
@@ -118,6 +124,7 @@ class _SignupState extends State<Signup> {
                   height: size.width * 0.08,
                   child: TextButton(
                       onPressed: () {
+                        setState(() {});
                         if (_formkey.currentState!.validate()) {
                           if (CHECKPASSWORD.text == PASSWORD.text) {
                             Map<String, String> userData = {

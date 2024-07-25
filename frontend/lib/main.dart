@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screen/Login.dart';
 import 'package:frontend/screen/Start.dart';
 import 'package:frontend/screen/Map.dart';
 
@@ -12,7 +13,7 @@ class Main extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: StartScreen(),
+      home: const Login(),
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
       ),

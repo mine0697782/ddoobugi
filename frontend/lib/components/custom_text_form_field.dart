@@ -40,13 +40,6 @@ class CustomTextFormField extends StatelessWidget {
               if (value!.isEmpty) {
                 return "필수항목입니다";
               } else {
-                if (isCheckPass) {
-                  if (value == password) {
-                    return null;
-                  } else {
-                    return "비밀번호가 같지 않습니다.";
-                  }
-                }
                 if (isCheckEmail) {
                   return "이메일 중복";
                 }
