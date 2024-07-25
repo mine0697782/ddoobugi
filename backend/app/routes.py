@@ -9,7 +9,7 @@ import hashlib
 from .services import search_nearby_places, get_place_details, summarize_places_with_gpt
 from .utils import *
 import os
-from datetime import datetime, timezone
+import datetime
 from bson import ObjectId
 
 exclude_place_ids = []
@@ -49,6 +49,15 @@ def register():
 
 @main.post('/login')
 def login():
+    print("/login")
+
+    print("request json : ",end="")
+    print(request.get_json())
+    print("request data : ", end="")
+    print(request.get_data())
+    print("request form : ", request.form)
+    print("request args : ", request.args)
+
     email = request.json["email"]
     password = request.json["password"]
     pw_hash = hashlib.sha256(password.encode('utf-8')).hexdigest()
@@ -94,8 +103,9 @@ def search():
     addr = data["address"]
     
     result = get_bearer_token(auth_header)
-    # print("result : ", result)
     user = decode_token(result)
+    # print("user : ", user)
+    # print("result : ", result)
 
     # 루트 처음 시작 시 rid 없음 / 새 루트 생성
     if (rid == "" or rid == None): 
@@ -188,10 +198,24 @@ def search():
         return jsonify({"error": e}), 500
 
 
-@main.route("/chat/search")
+@main.post("/chat/select")
 def select():
+    print("/chat/select")
+    auth_header = request.headers.get('Authorization', None)
+    try :
+        rid = request.json["rid"]
+        pid = request.json["pid"]
+        print("rid : ", rid)
+        print("pid : ", pid)
+        # user = decode_token(get_bearer_token(auth_header))
+        route = db_route.find_one({"_id" : ObjectId(str(rid))})
+        print(route)
+    except Exception as e:
+        return {"result" : "fail", "msg" : "invalid token"}
 
-    return
+    # route["_id"] = type(route["_id"])
+    print("===============")
+    return (jsonify({"result" : "success"}))
 
 @main.route("/token")
 def token():
