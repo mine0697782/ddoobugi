@@ -1,9 +1,13 @@
-// class User {
-//   String name;
-//   String email;
-//   String password;
+class User {
+  String Username;
+  String Useremail;
+  String Userpassword;
+  String Usertoken;
 
-//   User({
-//     this.name = name,
-//   });
-// }
+  User({
+    this.Username = "",
+    this.Useremail = "",
+    this.Userpassword = "",
+    this.Usertoken = "",
+  });
+}
