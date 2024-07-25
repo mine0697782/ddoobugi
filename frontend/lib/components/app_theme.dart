@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screen/Start.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({super.key});
@@ -7,9 +8,18 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: Colors.white,
-      title: Image.asset(
-        'assets/images/logo.png',
-        scale: 6,
+      title: InkWell(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const StartScreen()), // const 키워드 사용
+          );
+        },
+        child: Image.asset(
+          'assets/images/logo.png',
+          scale: 6,
+        ),
       ),
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(2.0),

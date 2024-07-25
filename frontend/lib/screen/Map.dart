@@ -54,16 +54,18 @@ class _MapScreenState extends State<MapScreen> {
   Future<void> _addRoute() async {
     final startLat = 37.6098;
     final startLng = 127.0737;
-    final endLat = 37.5665; // Destination latitude
-    final endLng = 126.9780; // Destination longitude
-    final apiKey = 'AIzaSyD-rsNPFz79dDdN00dd-IQTXgppFHjp3N8';
+    final endLat = 38.968917; // Underground Coffee Works latitude
+    final endLng = -77.386254; // Underground Coffee Works longitude
+    final apiKey = 'YOUR_GOOGLE_MAPS_API_KEY';
 
     final url =
         'https://maps.googleapis.com/maps/api/directions/json?origin=$startLat,$startLng&destination=$endLat,$endLng&key=$apiKey';
     final response = await http.get(Uri.parse(url));
     final data = json.decode(response.body);
 
-    if (data['routes'].isNotEmpty) {
+    print('API response: $data'); // Debugging line to check API response
+
+    if (data['status'] == 'OK') {
       final points = data['routes'][0]['overview_polyline']['points'];
       final List<LatLng> result = _decodePolyline(points);
       setState(() {
@@ -75,6 +77,8 @@ class _MapScreenState extends State<MapScreen> {
           width: 5,
         ));
       });
+    } else {
+      print('Error fetching directions: ${data['error_message']}');
     }
   }
 
