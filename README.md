@@ -86,5 +86,5 @@ pip freeze > requirements.txt
 ### 서버 실행
 
 ```
-python main.py
+flask --app main run --host=0.0.0.0
 ```

@@ -4,11 +4,16 @@ class CustomTextFormField extends StatelessWidget {
   final Size size;
   final TextEditingController ID;
   final String text;
-
+  final bool isCheckPass;
+  final String password;
+  final bool isCheckEmail;
   const CustomTextFormField({
     required this.size,
     required this.ID,
     required this.text,
+    this.isCheckPass = false,
+    this.password = "",
+    this.isCheckEmail = false,
     super.key,
   });
 
@@ -21,17 +26,33 @@ class CustomTextFormField extends StatelessWidget {
             color: const Color.fromRGBO(237, 237, 237, 80)),
         padding: const EdgeInsets.only(left: 20),
         child: TextFormField(
-          controller: ID,
-          decoration: InputDecoration(
-              hintText: text,
-              border: InputBorder.none,
-              errorStyle: const TextStyle(color: Colors.red)),
-          style: const TextStyle(
-            color: Colors.black,
-            fontSize: 15,
-          ),
-          validator: (value) => value!.isEmpty ? "필수항목입니다" : null,
-        ));
+            controller: ID,
+            decoration: InputDecoration(
+                hintText: text,
+                labelText: text,
+                border: InputBorder.none,
+                errorStyle: const TextStyle(color: Colors.red)),
+            style: const TextStyle(
+              color: Colors.black,
+              fontSize: 15,
+            ),
+            validator: (value) {
+              if (value!.isEmpty) {
+                return "필수항목입니다";
+              } else {
+                if (isCheckPass) {
+                  if (value == password) {
+                    return null;
+                  } else {
+                    return "비밀번호가 같지 않습니다.";
+                  }
+                }
+                if (isCheckEmail) {
+                  return "이메일 중복";
+                }
+                return null;
+              }
+            }));
   }
   // @override
   // Widget build(BuildContext context) {

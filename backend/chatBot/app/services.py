@@ -1,5 +1,6 @@
 import requests
 import re
+import json
 from langchain_openai import AzureChatOpenAI
 
 def search_nearby_places(lat, lng, google_maps_api_key, radius=1000, place_type="point_of_interest"):
@@ -39,10 +40,11 @@ def summarize_places_with_gpt(prompt, config):
     )
     response = model.invoke(prompt)
     model_output = response.content.strip()
-    
-    place_ids_1 = re.findall(r'- \*\*place_id\*\*:? *([A-Za-z0-9_-]+)', model_output)
-    place_ids_2 = re.findall(r'- \*\*place_id:\*\*? *([A-Za-z0-9_-]+)', model_output)
-    place_ids_3 = re.findall(r'place_id:\s*([A-Za-z0-9_-]+)', model_output)
-
-    place_ids = place_ids_1 + place_ids_2 + place_ids_3
-    return model_output, place_ids
+    data = json.loads(model_output)
+    #place_ids = [place['place_id'] for place in data]
+    place_ids = [item['place_id'] for item in data]
+    #place_ids_1 = re.findall(r'- \*\*place_id\*\*:? *([A-Za-z0-9_-]+)', model_output)
+    #place_ids_2 = re.findall(r'- \*\*place_id:\*\*? *([A-Za-z0-9_-]+)', model_output)
+    #place_ids_3 = re.findall(r'place_id:\s*([A-Za-z0-9_-]+)', model_output)
+    #place_ids = place_ids_1 + place_ids_2 + place_ids_3
+    return model_output, place_ids, data
