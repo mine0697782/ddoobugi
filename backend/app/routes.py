@@ -166,9 +166,11 @@ def search():
 
     # received_exclude_place_ids = data["visited"]
     received_exclude_place_ids = []
-    for p in updated["waypoints"]:
-        received_exclude_place_ids.append(p)
-    print("exclude : ", received_exclude_place_ids)
+    visited = updated["waypoints"] 
+    if visited is not None:
+        for p in updated["waypoints"]:
+            received_exclude_place_ids.append(p)
+        print("exclude : ", received_exclude_place_ids)
 
     exclude_place_ids.extend(received_exclude_place_ids)
 
