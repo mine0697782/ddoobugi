@@ -63,6 +63,9 @@ ddoobugi/
 └── README.md
 ```
 
+![드로잉3](https://github.com/user-attachments/assets/a8d2d98f-eeea-4b92-a6b3-37f861f1b5cd)
+
+
 ### Flask 가상환경 실행
 
 ```
