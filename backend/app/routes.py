@@ -272,7 +272,7 @@ def route_update(rid):
     print("newname : ", newname)
     print("==== update error 1 ====")
     try:
-        route = db_route.find_one_and_update(
+        db_route.find_one_and_update(
             {"_id": ObjectId(str(rid))},
             {"$set":{"name" : newname}}
             )
