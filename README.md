@@ -11,8 +11,8 @@
 
 ## 시스템 구조도
 
+![프로젝트구조진짜최종](https://github.com/user-attachments/assets/6387e161-b4f7-4201-a042-adbcd85ac085)
 
-![프로젝트구조최종](https://github.com/user-attachments/assets/cdb30f70-974e-4e41-a8b5-f2fdd5588472)
 
 
 ## 팀소개
