@@ -266,7 +266,21 @@ def route_detail(rid):
 
 @main.post("/routes/<rid>/update")
 def route_update(rid):
-    return ("/routes/<rid>/update")
+    print("/routes/rid/update")
+    print("rid : "+ str(rid))
+    newname = request.json["name"]
+    try:
+        route = db_route.find_one_and_update(
+            {"_id": ObjectId(str(rid))},
+            {"$set":{"name" : newname}}
+            )
+        route.pop("_id")
+        route["id"] = rid
+        # print("route : ", route)
+    except Exception as e:
+        return e
+
+    return jsonify({"result": "success", "rid" : rid, "newname" : newname})
 
 @main.post("/routes/<rid>/delete")
 def route_delete(rid):
