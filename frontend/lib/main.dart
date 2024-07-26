@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/components/User.dart';
 import 'package:frontend/screen/Login.dart';
 import 'package:frontend/screen/Start.dart';
 import 'package:frontend/screen/Map.dart';
@@ -13,7 +14,10 @@ class Main extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: const Login(),
+      home: StartScreen(
+          userdata: User(
+              Usertoken:
+                  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6IjEyMyIsImV4cCI6MTcyMzExMTc2OX0.PtU9eUoXtngMStHVbFgdl14uFZfrf1_bQAbf-NB2sWw")),
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,
       ),
