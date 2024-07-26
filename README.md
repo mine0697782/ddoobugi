@@ -1,8 +1,18 @@
 # DDOOBUGI (뚜벅이)
 
+
+![KakaoTalk_Photo_2024-07-26-10-12-29](https://github.com/user-attachments/assets/0600a169-b405-4660-9e01-79efa93bb5e0)
+
+
+
 주변 산책 명소와 루트를 추천해주는 앱.
 
 건물, 동상, 숲, 산책로, 로드뷰 등 다양한 산책지 정보를 제공합니다.
+
+## 시스템 구조도
+
+![드로잉3](https://github.com/user-attachments/assets/a8d2d98f-eeea-4b92-a6b3-37f861f1b5cd)
+
 
 ## 팀소개
 
@@ -63,7 +73,6 @@ ddoobugi/
 └── README.md
 ```
 
-![드로잉3](https://github.com/user-attachments/assets/a8d2d98f-eeea-4b92-a6b3-37f861f1b5cd)
 
 
 ### Flask 가상환경 실행
