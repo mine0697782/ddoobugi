@@ -46,6 +46,7 @@ class _LoginState extends State<Login> {
         userdata = User(Usertoken: token);
         return token;
       } else {
+        print('Error: ${response.statusCode} ${response.reasonPhrase}');
         print(
             "0000000000000000000000000000000000000000000000000000000000000000000000000000");
         return "fail";

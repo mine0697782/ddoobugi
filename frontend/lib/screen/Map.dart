@@ -48,11 +48,17 @@ class _MapScreenState extends State<MapScreen> {
       target: LatLng(position.latitude, position.longitude),
       zoom: 18,
     );
+    print("MAP!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ${user.lat}, ${user.lot}");
     mapController.animateCamera(CameraUpdate.newCameraPosition(cameraPosition));
     setState(() {
       _myLocationEnabled = true;
-      user = User(lat: position.latitude, lot: position.longitude);
+      user = User(
+          Usertoken: user.Usertoken,
+          lat: position.latitude,
+          lot: position.longitude);
     });
+    print(
+        "USER: ${user.lat}, ${user.lot}---------------------------------------------------------------");
   }
 
   Future<void> _addRoute() async {
@@ -141,6 +147,7 @@ class _MapScreenState extends State<MapScreen> {
         },
         child: Scaffold(
           appBar: const CustomAppBar(),
+          resizeToAvoidBottomInset: true,
           body: Stack(
             children: [
               GoogleMap(
@@ -156,11 +163,12 @@ class _MapScreenState extends State<MapScreen> {
               isExpanded
                   ? Align(
                       alignment: Alignment.bottomLeft,
-                      child: SizedBox(
+                      child: Container(
                           width: 300,
                           height: isExpanded ? 95 : 70,
+                          margin: const EdgeInsets.only(bottom: 8),
                           child: Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: const EdgeInsets.all(6.0),
                             child: Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(20),
@@ -188,6 +196,7 @@ class _MapScreenState extends State<MapScreen> {
                                         children: [
                                           IconButton(
                                             onPressed: () {
+                                              _currentLocation();
                                               Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
@@ -253,7 +262,7 @@ class _MapScreenState extends State<MapScreen> {
                   : Align(
                       alignment: Alignment.bottomLeft,
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(12, 12, 12, 19),
+                        padding: const EdgeInsets.fromLTRB(12, 12, 12, 21),
                         child: FloatingActionButton(
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(100)),
