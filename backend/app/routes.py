@@ -270,7 +270,6 @@ def route_update(rid):
     print("rid : "+ str(rid))
     newname = request.json["name"]
     print("newname : ", newname)
-    print("==== update error 1 ====")
     try:
         db_route.find_one_and_update(
             {"_id": ObjectId(str(rid))},
@@ -280,10 +279,9 @@ def route_update(rid):
         # route["id"] = rid
         # print("route : ", route)
     except Exception as e:
-        print("==== update error 2 ====")
+        print("===== update section 1 =====")
         return e
-
-    print("==== update error 3 ====")
+    print("===== update section 2 =====")
     return jsonify({"result": "success", "rid" : rid, "newname" : newname})
 
 @main.post("/routes/<rid>/delete")
